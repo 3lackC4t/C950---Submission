@@ -1,31 +1,10 @@
-
-class Node:
-    def __init__(self, package_id, address, deadline, city, zipcode, weight, status):
-        self.package_id = package_id 
-        self.address = address
-        self.deadline = deadline
-        self.city = city
-        self.zipcode = zipcode
-        self.weight = weight
-        self.status = status
-        self.next = None 
-
-    def __str__(self):
-        return f"""
-            Delivery Address: {self.address}
-            Deadline: {self.deadline}
-            City: {self.city}
-            Zip Code: {self.zipcode}
-            Weight: {self.weight}
-            Status: {self.status}
-        """
-
+from package import Package
 
 class HashTable:
     def __init__(self, capacity):
         self.capacity = capacity
         self.size = 0
-        self.table: Node = [None] * capacity
+        self.table: Package= [None] * capacity
 
     # Using the SDBM hash algorithm to hash the package_id
     def _make_hash(self, key):
@@ -36,25 +15,25 @@ class HashTable:
     
     # Using the hash table chaining method to handle potential collisions
     def _insert_node(self, package_id, address, deadline, city, zipcode, weight, status):
-        new_node: Node = Node(package_id, address, deadline, city, zipcode, weight, status)
-        node_hash = self._make_hash(package_id)
-        if self.table[node_hash] is not None:
-            self.table[node_hash] = new_node
+        new_package: Package= Package(package_id, address, deadline, city, zipcode, weight, status)
+        package_hash= self._make_hash(package_id)
+        if self.table[package_hash] is not None:
+            self.table[package_hash] = new_package 
             self.size += 1
         else:
-            temp: Node = self.table[node_hash]
+            temp: Package= self.table[package_hash]
             while temp.next:
                 if temp.package_id == package_id:
                     return
                 temp = temp.next
-            new_node.next = self.table[node_hash]
-            self.table[node_hash] = new_node
+            new_package.next = self.table[package_hash]
+            self.table[package_hash] = new_package 
             self.size += 1
 
     def _remove_node(self, package_id):
         index = self._make_hash(package_id)
-        current: Node = self.table[index]
-        previous: Node = None
+        current: Package = self.table[index]
+        previous: Package = None
 
         while current:
             if current.package_id == package_id:
@@ -71,21 +50,21 @@ class HashTable:
 
 
     def _lookup(self, package_id):
-        bucket: Node = self.table[self._make_hash(package_id)]
-        while bucket:
-            if bucket.package_id == package_id:
-                return bucket
-            bucket = bucket.next
+        current: Package= self.table[self._make_hash(package_id)]
+        while current:
+            if current.package_id == package_id:
+                return current 
+            current = current.next
         
         raise KeyError(package_id)
     
     def __str__(self):
         result = []
-        for node in self.table:
+        for package in self.table:
             chain = []
-            while node:
-                chain.append(node)
-                node = node.next
+            while package:
+                chain.append(package)
+                package = package.next
             result.extend(chain)
 
         return str(result)
