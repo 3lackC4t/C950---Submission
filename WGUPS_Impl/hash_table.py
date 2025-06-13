@@ -14,20 +14,19 @@ class HashTable:
         return hash_val % self.capacity
     
     # Using the hash table chaining method to handle potential collisions
-    def _insert_node(self, package_id, address, deadline, city, zipcode, weight, status):
-        new_package: Package= Package(package_id, address, deadline, city, zipcode, weight, status)
-        package_hash= self._make_hash(package_id)
+    def _insert_node(self, package: Package):
+        package_hash= self._make_hash(package.package_id)
         if not self.table[package_hash]:
-            self.table[package_hash] = new_package 
+            self.table[package_hash] = package 
             self.size += 1
         else:
             temp: Package= self.table[package_hash]
             while temp.next:
-                if temp.package_id == package_id:
+                if temp.package_id == package:
                     return
                 temp = temp.next
-            new_package.next = self.table[package_hash]
-            self.table[package_hash] = new_package 
+            package.next = self.table[package_hash]
+            self.table[package_hash] = package 
             self.size += 1
 
     def _remove_node(self, package_id):

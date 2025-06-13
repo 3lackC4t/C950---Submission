@@ -1,11 +1,22 @@
+from status import Status
+
 class Package:
-    def __init__(self, package_id, address, deadline, city, zipcode, weight, status):
+    def __init__(self, package_id: int, 
+                 address: str, 
+                 deadline: str, 
+                 city: str, 
+                 zipcode:str, 
+                 weight: float, 
+                 note: str, 
+                 status: Status):
+
         self.package_id = package_id 
         self.address = address
         self.deadline = deadline
         self.city = city
         self.zipcode = zipcode
         self.weight = weight
+        self.note = note
         self.status = status
         self.next = None 
 
@@ -16,7 +27,7 @@ class Package:
             City: {self.city}
             Zip Code: {self.zipcode}
             Weight: {self.weight}
-            Status: {self.status}
+            Status: {self.status.value}
         """
 
 
