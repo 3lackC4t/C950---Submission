@@ -17,7 +17,7 @@ class HashTable:
     def _insert_node(self, package_id, address, deadline, city, zipcode, weight, status):
         new_package: Package= Package(package_id, address, deadline, city, zipcode, weight, status)
         package_hash= self._make_hash(package_id)
-        if self.table[package_hash] is not None:
+        if not self.table[package_hash]:
             self.table[package_hash] = new_package 
             self.size += 1
         else:
