@@ -15,16 +15,21 @@ class HashTable:
     
     # Using the hash table chaining method to handle potential collisions
     def _insert_node(self, package: Package):
-        package_hash= self._make_hash(package.package_id)
+        package_hash = self._make_hash(package.package_id)
+
         if not self.table[package_hash]:
+            # The slot is empty, just insert
             self.table[package_hash] = package 
             self.size += 1
         else:
+            # Check for a duplicate
             temp: Package= self.table[package_hash]
-            while temp.next:
-                if temp.package_id == package:
+            while temp:
+                if temp.package_id == package.package_id:
                     return
                 temp = temp.next
+
+            # No duplicate, insert at head of chain
             package.next = self.table[package_hash]
             self.table[package_hash] = package 
             self.size += 1
@@ -46,7 +51,6 @@ class HashTable:
             current = previous.next
 
         raise KeyError(package_id)
-
 
     def _lookup(self, package_id):
         current: Package= self.table[self._make_hash(package_id)]
