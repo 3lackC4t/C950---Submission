@@ -24,9 +24,10 @@ class Package:
         base_date = datetime.now().date()
 
         if deadline_str == "EOD":
-            return datetime.combine(base_date, datetime.strptime("5:00 PM", "%H:%M :p").time())
+            return datetime.combine(base_date, datetime.strptime("5:00 PM", "%I:%M %p").time())
         else:
-            raw_time = datetime.strptime(deadline_str, "%H:%M %p").time()
+            print(deadline_str)
+            raw_time = datetime.strptime(deadline_str, "%I:%M %p").time()
             return datetime.combine(base_date, raw_time)
 
     def __str__(self):

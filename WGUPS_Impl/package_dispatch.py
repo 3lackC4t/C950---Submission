@@ -29,7 +29,8 @@ class PackageDispatch:
         early_packages = []
         delayed_packages = []
 
-        for package in total_packages:
+        for package in total_packages[1::]:
+            print(package[5])
             new_package: Package = Package(package_id=package[0],
                                         address=package[1],
                                         city=package[2],
@@ -54,7 +55,7 @@ class PackageDispatch:
 
     def has_available_packages(self):
         with self.package_lock:
-            return any(p.status == Status.AT_HUB for p in self.available_packages)
+            return any(p.status == Status.AT_HUB for p in self.packages)
 
     def get_packages_for_truck(self, truck, capacity_needed: int):
         packages_to_load = []
@@ -72,7 +73,7 @@ class PackageDispatch:
 
             for package in packages_to_assign:
 
-                new_status = Status.on_event("LOAD_TRUCK")
+                new_status = package.status.on_event("LOAD_TRUCK")
                 if new_status:
                     package.status = new_status
                 else:
@@ -88,6 +89,6 @@ class PackageDispatch:
 
     def mark_delivered(self, package: Package):
         with self.package_lock:
-            package.status = Status.on_event("DELIVER")
+            package.status = package.status.on_event("DELIVER")
             self.delivered_packages.insert_node(package)
 

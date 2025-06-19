@@ -17,6 +17,7 @@ class Truck:
         self.miles_driven = 0
         self.start_time = datetime.datetime.combine(datetime.date.today(), datetime.time(8, 0, 0, 0, None))
         self.current_time= self.start_time
+        self.delayed_truck = False
 
         # Create Distance Data
         self.distance_data = self.get_distance_data()
@@ -35,12 +36,12 @@ class Truck:
         return distance_index_map
             
     def current_time_readable(self):
-        return self.current_time.strftime("%H:%M:%S :p")
+        return self.current_time.strftime("%I:%M:%S :p")
  
     def drop_off_package(self, package: Package):
         print(package)
         if package in self.packages:
-            new_status = Status.on_event("DELIVER")
+            new_status = package.status.on_event("DELIVER")
             if new_status:
                 package.status = new_status
             self.dispatcher.mark_delivered(package)
@@ -75,7 +76,7 @@ class Truck:
     def get_distance(self, index_one, index_two) -> float:
         return float(self.distance_data[index_one][index_two])
 
-    def do_rounds(self, distance_index_map: dict):
+    def do_rounds(self):
         current_radius: int = 0
 
         while len(self.dispatcher.packages) > 0:
@@ -85,8 +86,8 @@ class Truck:
             candidates = []
             for package in self.packages:
                 distance = self.get_distance(
-                        distance_index_map[self.current_location], 
-                        distance_index_map[package.address]
+                        self.distance_index_map[self.current_location], 
+                        self.distance_index_map[package.address]
                     )
                 if distance <= current_radius:
                     candidates.append((package, distance))
@@ -95,9 +96,10 @@ class Truck:
                 best_package, best_distance = min(candidates, key=lambda x: x[1])
                 self.move_truck(best_package.address, best_distance)
                 self.drop_off_package(best_package)
+                current_radius = 0
                 print(self.current_time_readable())
             else:
                 current_radius += 2
 
     def can_take_delayed(self) -> bool:
-        return False 
+        return self.delayed_truck
