@@ -2,7 +2,6 @@ from package import Package
 from hash_table import HashTable
 from status import Status
 from package_dispatch import PackageDispatch
-from message import Message
 
 import datetime
 import pathlib
@@ -41,7 +40,9 @@ class Truck:
     def drop_off_package(self, package: Package):
         print(package)
         if package in self.packages:
-            package.status = 
+            new_status = Status.on_event("DELIVER")
+            if new_status:
+                package.status = new_status
             self.dispatcher.mark_delivered(package)
             self.packages.remove(package)
         else:
@@ -76,7 +77,11 @@ class Truck:
 
     def do_rounds(self, distance_index_map: dict, distance_table: list):
         current_radius: int = 0
-        while len(self.packages) > 0:
+
+        while len(self.dispatcher.packages) > 0:
+            if len(self.packages == 0):
+                self.load_packages()
+
             candidates = []
             for package in self.packages:
                 distance = self.get_distance(
