@@ -7,9 +7,8 @@ from truck import Truck
 from status import Status 
 from package_dispatch import PackageDispatch
 
-import csv
 import pathlib
-import datetime
+import threading
     
 
 def main():  
@@ -19,9 +18,14 @@ def main():
     truck2: Truck = Truck(dispatcher)
     truck3: Truck = Truck(dispatcher)
 
-    truck1.do_rounds(distance_index_map, distance_data)
-    truck2.do_rounds(distance_index_map, distance_data)
+    truck1_thread = threading.Thread(target=truck1.do_rounds)
+    truck2_thread = threading.Thread(target=truck2.do_rounds)
 
+    truck1_thread.start()
+    truck2_thread.start()
+
+    truck1_thread.join()
+    truck2_thread.join()
 
     print(truck1.miles_driven + truck2.miles_driven)
 
