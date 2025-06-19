@@ -75,11 +75,11 @@ class Truck:
     def get_distance(self, index_one, index_two) -> float:
         return float(self.distance_data[index_one][index_two])
 
-    def do_rounds(self, distance_index_map: dict, distance_table: list):
+    def do_rounds(self, distance_index_map: dict):
         current_radius: int = 0
 
         while len(self.dispatcher.packages) > 0:
-            if len(self.packages == 0):
+            if self.dispatcher.has_available_packages() and len(self.packages) == 0:
                 self.load_packages()
 
             candidates = []
@@ -93,7 +93,6 @@ class Truck:
 
             if candidates:
                 best_package, best_distance = min(candidates, key=lambda x: x[1])
-                best_package.status = Status.EN_ROUTE
                 self.move_truck(best_package.address, best_distance)
                 self.drop_off_package(best_package)
                 print(self.current_time_readable())

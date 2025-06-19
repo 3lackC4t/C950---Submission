@@ -19,3 +19,4 @@ class Status(Enum):
         if new_state is None:
             raise ValueError(f"Invalid state transition {self.value} to {event}")
         
+        return new_state

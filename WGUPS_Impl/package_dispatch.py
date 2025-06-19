@@ -1,7 +1,6 @@
 from hash_table import HashTable
 from package import Package
 from status import Status
-from truck import Truck
 
 import threading
 import csv
@@ -57,7 +56,7 @@ class PackageDispatch:
         with self.package_lock:
             return any(p.status == Status.AT_HUB for p in self.available_packages)
 
-    def get_packages_for_truck(self, truck: Truck, capacity_needed: int):
+    def get_packages_for_truck(self, truck, capacity_needed: int):
         packages_to_load = []
 
         with self.package_lock:
