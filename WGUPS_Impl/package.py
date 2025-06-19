@@ -1,6 +1,5 @@
 from status import Status
-from datetime import datetime, timedelta
-
+from datetime import datetime
 class Package:
     def __init__(self, package_id: int, 
                  address: str, 
@@ -22,11 +21,13 @@ class Package:
         self.next = None 
 
     def convert_deadline(self, deadline_str: str):
+        base_date = datetime.now().date()
+
         if deadline_str == "EOD":
-            return timedelta(hours=23)
+            return datetime.combine(base_date, datetime.strptime("5:00 PM", "%H:%M :p").time())
         else:
-            raw_time = datetime.strptime(deadline_str, "%H:%M %p")
-            return timedelta(hours=raw_time.hour, minutes=raw_time.minute, seconds=raw_time.second)
+            raw_time = datetime.strptime(deadline_str, "%H:%M %p").time()
+            return datetime.combine(base_date, raw_time)
 
     def __str__(self):
         return f"""

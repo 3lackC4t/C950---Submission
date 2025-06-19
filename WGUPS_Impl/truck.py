@@ -2,20 +2,24 @@ from package import Package
 from hash_table import HashTable
 from status import Status
 from package_dispatch import PackageDispatch
+from message import Message
 
 import datetime
 import pathlib
 import csv
 
 class Truck:
-    def __init__(self, dispatcher: PackageDispatch):
+    def __init__(self, dispatcher: PackageDispatch, truckId: str):
         self.avg_speed: int = 18
         self.max_inventory: int = 16
+        self.truckId = truckId
         self.current_location = dispatcher.location
         self.dispatcher = dispatcher
         self.miles_driven = 0
         self.start_time = datetime.datetime.combine(datetime.date.today(), datetime.time(8, 0, 0, 0, None))
         self.current_time= self.start_time
+
+        # Create Distance Data
         self.distance_data = self.get_distance_data()
         self.distance_index_map = self.get_distance_map()
         self.packages: list = []
@@ -23,24 +27,22 @@ class Truck:
     def get_distance_data(self):
         with open(pathlib.Path("C950---Submission\WGUPS_Impl\data\WGUPS_Distance_Table_Cleaned.csv"), newline="") as csvfile:
             reader = csv.reader(csvfile)
-            return reader
+            return list(reader)
 
     def get_distance_map(self):
         distance_index_map = {}
-        index = 1
-        for location in self.distance_data[0][1::]:
+        for index, location in enumerate(self.distance_data[0][1::], 1):
             distance_index_map[location.strip()] = index
-            index += 1
-
         return distance_index_map
             
     def current_time_readable(self):
-        return self.start_time + datetime.timedelta(seconds=self.current_seconds)
+        return self.current_time.strftime("%H:%M:%S :p")
  
     def drop_off_package(self, package: Package):
         print(package)
-        if package:
-            package.status = Status.DELIVERED
+        if package in self.packages:
+            package.status = 
+            self.dispatcher.mark_delivered(package)
             self.packages.remove(package)
         else:
             raise AttributeError(f"Package Not Found")
@@ -76,18 +78,22 @@ class Truck:
         current_radius: int = 0
         while len(self.packages) > 0:
             candidates = []
-            for pack in self.packages:
-                distance = self.get_distance(distance_index_map[self.current_location], distance_index_map[pack.address], distance_table)
+            for package in self.packages:
+                distance = self.get_distance(
+                        distance_index_map[self.current_location], 
+                        distance_index_map[package.address]
+                    )
                 if distance <= current_radius:
-                    candidates.append((pack, distance))
+                    candidates.append((package, distance))
 
             if candidates:
-                best_pack, best_distance = min(candidates, key=lambda x: x[1])
-                best_pack.status = Status.EN_ROUTE
-                self.move_truck(best_pack.address, best_distance)
-                self.drop_off_package(best_pack)
+                best_package, best_distance = min(candidates, key=lambda x: x[1])
+                best_package.status = Status.EN_ROUTE
+                self.move_truck(best_package.address, best_distance)
+                self.drop_off_package(best_package)
                 print(self.current_time_readable())
             else:
                 current_radius += 2
-        
-            
+
+    def can_take_delayed(self) -> bool:
+        return False 

@@ -15,23 +15,22 @@ and delayed packages second.
 """
 class PackageDispatch:
     def __init__(self, csv_file_path: pathlib.Path, location: str):
-        self.packages = self.load_packages_from_csv(csv_file_path)[1::]
-        self.available_packages = self.get_available_packages()
+        self.packages = self.load_all_packages(csv_file_path)
         self.delivered_packages = HashTable(len(self.packages))
         self.location = location
-        self.package_lock = threading.lock()
-        self.global_time_lock = threading.lock()
-
-    def load_packages_from_csv(self, csv_file: pathlib.Path): 
+        self.package_lock = threading.Lock() 
+        
+    def load_all_packages(self, csv_file: pathlib.Path):
+        total_packages = []
+        
         with open(csv_file, newline='') as csvfile:
             reader = csv.reader(csvfile)
-            return list(reader)
-        
-    def get_available_packages(self):
+            total_packages = list(reader)
+       
         early_packages = []
         delayed_packages = []
 
-        for package in self.packages:
+        for package in total_packages:
             new_package: Package = Package(package_id=package[0],
                                         address=package[1],
                                         city=package[2],
@@ -55,14 +54,41 @@ class PackageDispatch:
         return delayed_packages
 
     def has_available_packages(self):
-        return len(self.packages) > 0
+        with self.package_lock:
+            return any(p.status == Status.AT_HUB for p in self.available_packages)
 
     def get_packages_for_truck(self, truck: Truck, capacity_needed: int):
         packages_to_load = []
-        for _ in range(capacity_needed):
-            packages_to_load.append(self.available_packages.pop())
+
+        with self.package_lock:
+            print(f"Truck {getattr(truck, 'truckId', 'UNKNOWN')} requesting {capacity_needed} packages...")
+
+            available_packages = [p for p in self.packages if p.status == Status.AT_HUB]
+
+            if not available_packages:
+                print("No packages available at hub")
+                return packages_to_load
+
+            packages_to_assign = available_packages[:capacity_needed]
+
+            for package in packages_to_assign:
+
+                new_status = Status.on_event("LOAD_TRUCK")
+                if new_status:
+                    package.status = new_status
+                else:
+                    print("Invalid State Change")
+                
+                packages_to_load.append(package)
+                self.packages.remove(package)
+
+                print(f"Assigned package {package.package_id} to truck {getattr(truck, 'truckId', 'UNKOWN')}")  
+            
 
         return packages_to_load
 
     def mark_delivered(self, package: Package):
-        self.delivered_packages._insert_node(package)
+        with self.package_lock:
+            package.status = Status.on_event("DELIVER")
+            self.delivered_packages.insert_node(package)
+
