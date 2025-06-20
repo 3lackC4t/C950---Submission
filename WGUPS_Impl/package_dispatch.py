@@ -55,7 +55,7 @@ class PackageDispatch:
 
     def has_available_packages(self):
         with self.package_lock:
-            return any(p.status == Status.AT_HUB for p in self.packages)
+            return len(self.packages) > 0
 
     def get_packages_for_truck(self, truck, capacity_needed: int):
         packages_to_load = []
@@ -63,7 +63,7 @@ class PackageDispatch:
         with self.package_lock:
             print(f"Truck {getattr(truck, 'truckId', 'UNKNOWN')} requesting {capacity_needed} packages...")
 
-            available_packages = [p for p in self.packages if p.status == Status.AT_HUB and p not in self.delivered_packages]
+            available_packages = [p for p in self.packages if p.package_id not in self.delivered_packages]
 
             if not available_packages:
                 print("No packages available at hub")
@@ -78,9 +78,13 @@ class PackageDispatch:
                     package.status = new_status
                 else:
                     print("Invalid State Change")
-                
-                packages_to_load.append(package)
-                self.packages.remove(package)
+                if package.note:
+                    if truck.can_take_delayed():
+                        packages_to_load.append(package)
+                        self.packages.remove(package)
+                else:
+                    packages_to_load.append(package)
+                    self.packages.remove(package)
 
                 print(f"Assigned package {package.package_id} to truck {getattr(truck, 'truckId', 'UNKOWN')}")  
             
