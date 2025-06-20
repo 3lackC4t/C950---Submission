@@ -5,6 +5,7 @@ from status import Status
 import threading
 import csv
 import pathlib
+import logging
 
 """
 PackageDispatch handles all logic pertaining to scheduling and distributing
@@ -17,7 +18,9 @@ class PackageDispatch:
         self.packages = self.load_all_packages(csv_file_path)
         self.delivered_packages = HashTable(len(self.packages))
         self.location = location
-        self.package_lock = threading.Lock() 
+        self.package_lock = threading.Lock()
+        self.logs = []
+        self.log_lock = threading.Lock() 
         
     def load_all_packages(self, csv_file: pathlib.Path):
         all_packages = []
@@ -27,7 +30,6 @@ class PackageDispatch:
             total_packages = list(reader)
        
         for package in total_packages[1::]:
-            print(package[5])
             new_package: Package = Package(package_id=package[0],
                                         address=package[1],
                                         city=package[2],
@@ -49,12 +51,16 @@ class PackageDispatch:
     def has_available_packages(self):
         with self.package_lock:
             return len(self.packages) > 0
+        
+    def log_message(self, new_logs):
+        with self.log_lock:
+            self.logs.extend(new_logs)
 
     def get_packages_for_truck(self, truck, capacity_needed: int):
         packages_to_load = []
 
         with self.package_lock:
-            print(f"Truck {getattr(truck, 'truckId', 'UNKNOWN')} requesting {capacity_needed} packages...")
+            logging.info(f"Truck {getattr(truck, 'truckId', 'UNKNOWN')} requesting {capacity_needed} packages...")
 
             available_packages = [p for p in self.packages if p.package_id not in self.delivered_packages]
 

@@ -1,17 +1,23 @@
 # Author: Cameron Minty
 # Student ID: 012312886
 
-from package import Package
-from hash_table import HashTable
 from truck import Truck
-from status import Status 
 from package_dispatch import PackageDispatch
 
 import pathlib
 import threading
-    
+import logging    
 
 def main():  
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler() 
+        ]
+    )
+
     dispatcher = PackageDispatch(
             pathlib.Path("C950---Submission\WGUPS_Impl\data\WGUPS_Package_File_Cleaned.csv"),
             "Western Governors University 4001 South 700 East, Salt Lake City, UT 84107"
@@ -31,7 +37,10 @@ def main():
     truck1_thread.join()
     truck2_thread.join()
 
-    print(f"{truck1.miles_driven + truck2.miles_driven:.2f}")
+    print(f"""
+            Final package delivered
+            Total Miles Driven: {truck1.miles_driven + truck2.miles_driven:.2f}
+        """)
 
 if __name__ == "__main__":
     main()

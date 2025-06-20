@@ -4,6 +4,7 @@ from package_dispatch import PackageDispatch
 import datetime
 import pathlib
 import csv
+import logging
 
 class Truck:
     def __init__(self, dispatcher: PackageDispatch, truckId: str):
@@ -37,10 +38,12 @@ class Truck:
         return self.current_time.strftime("%I:%M:%S :p")
  
     def drop_off_package(self, package: Package):
-        print(package)
         if package in self.packages:
             self.dispatcher.mark_delivered(package)
             self.packages.remove(package)
+            logging.info(f"TRUCK: [{self.truckId}] :: Delivered package {package.package_id} at {self.current_location} at time: {self.current_time_readable()} :: DEADLINE: {package.deadline}")
+            if self.current_time > package.deadline:
+                logging.info("TRUCK: [{self.truckId}] :: THIS PACKAGE WAS DELIVERED LATE!!!")
         else:
             raise AttributeError(f"Package Not Found")
 
@@ -62,11 +65,11 @@ class Truck:
         return len(new_packages) > 0
 
     def move_truck(self, address: str, distance: float) -> int:
-        print(f"Current Location: {self.current_location}")
+        logging.info(f"TRUCK: [{self.truckId}] :: Current Location: {self.current_location}")
         self.current_location = address
         self.miles_driven += distance
         self.current_time += datetime.timedelta(hours=distance / self.avg_speed)
-        print(f"New Location: {self.current_location}")
+        logging.info(f"TRUCK: [{self.truckId}] :: New Location: {self.current_location}")
 
     def get_distance(self, index_one, index_two) -> float:
         return float(self.distance_data[index_one][index_two])
@@ -78,7 +81,6 @@ class Truck:
             if self.dispatcher.has_available_packages() and len(self.packages) == 0:
                 if self.load_packages():
                     current_radius = 0
-                    print(f'{len(self.dispatcher.packages)}')
                     continue
                 else:
                     break
@@ -96,8 +98,8 @@ class Truck:
                     if distance <= current_radius:
                         candidates.append((package, distance))
                 except KeyError as e:
-                    print(e)
-                    print(f"Address not found in distance map: {package.address}")
+                    logging.error(e)
+                    logging.error(f"Address not found in distance map: {package.address}")
                     continue
 
             if candidates:
@@ -105,7 +107,6 @@ class Truck:
                 self.move_truck(best_package.address, best_distance)
                 self.drop_off_package(best_package)
                 current_radius = 0
-                print(f"Delivered package {best_package.package_id} at {self.current_location} at time: {self.current_time_readable()}")
             else:
                 if current_radius <= 100:
                     current_radius += 2
