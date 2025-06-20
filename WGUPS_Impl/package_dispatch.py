@@ -63,7 +63,7 @@ class PackageDispatch:
         with self.package_lock:
             print(f"Truck {getattr(truck, 'truckId', 'UNKNOWN')} requesting {capacity_needed} packages...")
 
-            available_packages = [p for p in self.packages if p.status == Status.AT_HUB]
+            available_packages = [p for p in self.packages if p.status == Status.AT_HUB and p not in self.delivered_packages]
 
             if not available_packages:
                 print("No packages available at hub")

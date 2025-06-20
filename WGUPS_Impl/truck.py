@@ -1,6 +1,4 @@
 from package import Package
-from hash_table import HashTable
-from status import Status
 from package_dispatch import PackageDispatch
 
 import datetime
@@ -41,9 +39,6 @@ class Truck:
     def drop_off_package(self, package: Package):
         print(package)
         if package in self.packages:
-            new_status = package.status.on_event("DELIVER")
-            if new_status:
-                package.status = new_status
             self.dispatcher.mark_delivered(package)
             self.packages.remove(package)
         else:
