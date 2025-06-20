@@ -77,6 +77,7 @@ class Truck:
         while len(self.dispatcher.packages) > 0:
             if self.dispatcher.has_available_packages() and len(self.packages) == 0:
                 self.load_packages()
+                print(f'{len(self.dispatcher.packages)}')
 
             candidates = []
             for package in self.packages:
@@ -94,7 +95,11 @@ class Truck:
                 current_radius = 0
                 print(self.current_time_readable())
             else:
-                current_radius += 2
+                if current_radius <= 100:
+                    current_radius += 2
+                else:
+                    break
+                
 
     def can_take_delayed(self) -> bool:
         return self.delayed_truck
