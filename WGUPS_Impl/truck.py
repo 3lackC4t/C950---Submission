@@ -96,6 +96,7 @@ class Truck:
                     if distance <= current_radius:
                         candidates.append((package, distance))
                 except KeyError as e:
+                    print(e)
                     print(f"Address not found in distance map: {package.address}")
                     continue
 
@@ -110,7 +111,6 @@ class Truck:
                     current_radius += 2
                 else:
                     break
-                
 
     def can_take_delayed(self) -> bool:
         return self.delayed_truck

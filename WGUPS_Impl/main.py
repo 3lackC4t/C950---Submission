@@ -31,7 +31,7 @@ def main():
     truck1_thread.join()
     truck2_thread.join()
 
-    print(truck1.miles_driven + truck2.miles_driven)
+    print(f"{truck1.miles_driven + truck2.miles_driven:.2f}")
 
 if __name__ == "__main__":
     main()

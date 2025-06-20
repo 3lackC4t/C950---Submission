@@ -20,15 +20,12 @@ class PackageDispatch:
         self.package_lock = threading.Lock() 
         
     def load_all_packages(self, csv_file: pathlib.Path):
-        total_packages = []
+        all_packages = []
         
         with open(csv_file, newline='') as csvfile:
             reader = csv.reader(csvfile)
             total_packages = list(reader)
        
-        early_packages = []
-        delayed_packages = []
-
         for package in total_packages[1::]:
             print(package[5])
             new_package: Package = Package(package_id=package[0],
@@ -42,16 +39,12 @@ class PackageDispatch:
             
             if new_package.note:
                 new_package.status = Status.DELAYED
-                delayed_packages.append(new_package)
-            else:
-                early_packages.append(new_package)
+            
+            all_packages.append(new_package)
+        
+        all_packages.sort(key=lambda p: (p.deadline, bool(p.note)))
 
-        early_packages.sort(key=lambda p: p.deadline)
-        delayed_packages.sort(key=lambda p: p.deadline)
-        delayed_packages.extend(early_packages)
-        delayed_packages.reverse()
-
-        return delayed_packages
+        return all_packages
 
     def has_available_packages(self):
         with self.package_lock:
@@ -78,16 +71,15 @@ class PackageDispatch:
                     package.status = new_status
                 else:
                     print("Invalid State Change")
-                if package.note:
+                if package.status == Status.DELAYED:
                     if truck.can_take_delayed():
                         packages_to_load.append(package)
                         self.packages.remove(package)
+                        print(f"Assigned package {package.package_id} to truck {getattr(truck, 'truckId', 'UNKOWN')}")  
                 else:
                     packages_to_load.append(package)
                     self.packages.remove(package)
-
-                print(f"Assigned package {package.package_id} to truck {getattr(truck, 'truckId', 'UNKOWN')}")  
-            
+                    print(f"Assigned package {package.package_id} to truck {getattr(truck, 'truckId', 'UNKOWN')}")  
 
         return packages_to_load
 
