@@ -18,6 +18,7 @@ class Package:
         self.weight = weight
         self.note = note
         self.status = status
+        self.delivery_time = None
         self.next = None 
 
     def convert_deadline(self, deadline_str: str):

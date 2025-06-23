@@ -71,22 +71,23 @@ class PackageDispatch:
             packages_to_assign = available_packages[:capacity_needed]
 
             for package in packages_to_assign:
-
                 new_status = package.status.on_event("LOAD_TRUCK")
                 if new_status:
-                    package.status = new_status
+                    if package.status == Status.DELAYED:
+                        if truck.can_take_delayed():     
+                            package.status = new_status
+                        else:
+                            continue
+                    else:
+                        package.status = new_status
                 else:
-                    print("Invalid State Change")
-                if package.status == Status.DELAYED:
-                    if truck.can_take_delayed():
-                        packages_to_load.append(package)
-                        self.packages.remove(package)
-                        print(f"Assigned package {package.package_id} to truck {getattr(truck, 'truckId', 'UNKOWN')}")  
-                else:
+                    logging.error("Invalid State Change")
+
+                if package.status == Status.EN_ROUTE:
                     packages_to_load.append(package)
                     self.packages.remove(package)
-                    print(f"Assigned package {package.package_id} to truck {getattr(truck, 'truckId', 'UNKOWN')}")  
-
+                    logging.info(f"Assigned package {package.package_id} to truck {getattr(truck, 'truckId', 'UNKOWN')}")  
+                
         return packages_to_load
 
     def mark_delivered(self, package: Package):

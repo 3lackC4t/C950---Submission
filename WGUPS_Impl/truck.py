@@ -39,6 +39,7 @@ class Truck:
  
     def drop_off_package(self, package: Package):
         if package in self.packages:
+            package.delivery_time = self.current_time
             self.dispatcher.mark_delivered(package)
             self.packages.remove(package)
             logging.info(f"TRUCK: [{self.truckId}] :: Delivered package {package.package_id} at {self.current_location} at time: {self.current_time_readable()} :: DEADLINE: {package.deadline}")
@@ -91,6 +92,11 @@ class Truck:
             candidates = []
             for package in self.packages:
                 try:
+                    if package.package_id == 9:
+                        if self.current_time >= datetime.time(hour=10, minute=20):
+                            package.address = "410 S. State St., Salt Lake City, UT 84111"
+                        else:
+                            continue
                     distance = self.get_distance(
                             self.distance_index_map[self.current_location], 
                             self.distance_index_map[package.address]
