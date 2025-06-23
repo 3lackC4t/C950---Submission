@@ -18,6 +18,7 @@ class Package:
         self.weight = weight
         self.note = note
         self.status = status
+        self.package_log = []
         self.delivery_time = None
         self.next = None 
 

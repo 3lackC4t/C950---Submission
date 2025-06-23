@@ -52,7 +52,7 @@ class HashTable:
 
         raise KeyError(package_id)
 
-    def _lookup(self, package_id):
+    def lookup(self, package_id):
         current: Package= self.table[self._make_hash(package_id)]
         while current:
             if current.package_id == package_id:
@@ -84,7 +84,7 @@ class HashTable:
     
     def __contains__(self, package_id):
         try:
-            self._lookup(package_id)
+            self.lookup(package_id)
             return True
         except KeyError:
             return False

@@ -17,10 +17,9 @@ class PackageDispatch:
     def __init__(self, csv_file_path: pathlib.Path, location: str):
         self.packages = self.load_all_packages(csv_file_path)
         self.delivered_packages = HashTable(len(self.packages))
+        self.package_interface = HashTable(len(self.packages))
         self.location = location
         self.package_lock = threading.Lock()
-        self.logs = []
-        self.log_lock = threading.Lock() 
         
     def load_all_packages(self, csv_file: pathlib.Path):
         all_packages = []
@@ -43,7 +42,6 @@ class PackageDispatch:
                 new_package.status = Status.DELAYED
             
             all_packages.append(new_package)
-        
         all_packages.sort(key=lambda p: (p.deadline, bool(p.note)))
 
         return all_packages
@@ -52,16 +50,10 @@ class PackageDispatch:
         with self.package_lock:
             return len(self.packages) > 0
         
-    def log_message(self, new_logs):
-        with self.log_lock:
-            self.logs.extend(new_logs)
-
     def get_packages_for_truck(self, truck, capacity_needed: int):
         packages_to_load = []
 
         with self.package_lock:
-            logging.info(f"Truck {getattr(truck, 'truckId', 'UNKNOWN')} requesting {capacity_needed} packages...")
-
             available_packages = [p for p in self.packages if p.package_id not in self.delivered_packages]
 
             if not available_packages:
@@ -86,7 +78,7 @@ class PackageDispatch:
                 if package.status == Status.EN_ROUTE:
                     packages_to_load.append(package)
                     self.packages.remove(package)
-                    logging.info(f"Assigned package {package.package_id} to truck {getattr(truck, 'truckId', 'UNKOWN')}")  
+                    package.package_log.append((f"[{package.package_id}] - [{truck.current_time_readable()}] : Assigned package {package.package_id} to truck {getattr(truck, 'truckId', 'UNKOWN')}"))
                 
         return packages_to_load
 
