@@ -7,14 +7,14 @@ import csv
 import logging
 
 class Truck:
-    def __init__(self, dispatcher: PackageDispatch, truckId: str):
+    def __init__(self, dispatcher: PackageDispatch, truckId: str, start_time: datetime):
         self.avg_speed: int = 18
         self.max_inventory: int = 16
         self.truckId = truckId
         self.current_location = dispatcher.location
         self.dispatcher = dispatcher
         self.miles_driven = 0
-        self.start_time = datetime.datetime.combine(datetime.date.today(), datetime.time(8, 0, 0, 0, None))
+        self.start_time = start_time
         self.current_time= self.start_time
         self.delayed_truck = False
 
@@ -65,6 +65,34 @@ class Truck:
         self.packages.extend(new_packages)
         return len(new_packages) > 0
 
+    def find_nearest_package(self):
+        if not self.packages:
+            return None
+        
+        min_distance = float("inf")
+        nearest_package = None
+
+        for package in self.packages:
+            address = package.address
+            if package.package_id == 9 and self.current_time.time() >= datetime.time(hour=10, minute=20):
+                package.address = "410 S. State St., Salt Lake City, UT 84111"
+
+            deadline_prio = 1
+            if package.deadline.time() <= datetime.time(hour=10, minute=20):
+                deadline_prio = 0.5
+
+            current_indx = self.distance_index_map[self.current_location]
+            destination_indx = self.distance_index_map[address]
+
+            distance = self.get_distance(current_indx, destination_indx)
+            weighted_distance = distance * deadline_prio
+
+            if weighted_distance <= min_distance:
+                min_distance = distance
+                nearest_package = package
+
+            return nearest_package, min_distance
+
     def move_truck(self, address: str, distance: float) -> int:
         self.current_location = address
         self.miles_driven += distance
@@ -74,49 +102,30 @@ class Truck:
         return float(self.distance_data[index_one][index_two])
 
     def do_rounds(self):
-        current_radius: int = 0
+        while True:
 
-        while len(self.dispatcher.packages) > 0 or len(self.packages) > 0:
-            if self.dispatcher.has_available_packages() and len(self.packages) == 0:
-                if self.load_packages():
-                    current_radius = 0
-                    continue
-                else:
+            if len(self.packages) == 0 and self.dispatcher.has_available_packages():
+                if not self.load_packages():
                     break
+                continue
 
             if len(self.packages) == 0:
                 break
 
-            candidates = []
-            for package in self.packages:
-                try:
-                    if package.package_id == 9:
-                        if self.current_time >= datetime.time(hour=10, minute=20):
-                            package.address = "410 S. State St., Salt Lake City, UT 84111"
-                        else:
-                            continue
-                    distance = self.get_distance(
-                            self.distance_index_map[self.current_location], 
-                            self.distance_index_map[package.address]
-                        )
-                    if distance <= current_radius:
-                        candidates.append((package, distance))
-                except KeyError as e:
-                    logging.error(e)
-                    logging.error(f"Address not found in distance map: {package.address}")
-                    continue
+            nearest_package, min_distance = self.find_nearest_package()
 
-            if candidates:
-                candidates.sort(key=lambda p: (p[0].deadline, distance))
-                best_package, best_distance = candidates[-1]
-                self.move_truck(best_package.address, best_distance)
-                self.drop_off_package(best_package)
-                current_radius = 0
-            else:
-                if current_radius <= 100:
-                    current_radius += 2
-                else:
-                    break
+            if nearest_package is None:
+                break
 
+            address = nearest_package.address
+            if nearest_package.package_id == 9 and self.current_time.time() >= datetime.time(10, 20):
+                address = "410 S. State St., Salt Lake City, UT 84111"
+                nearest_package.address = address
+
+            self.move_truck(address, min_distance)
+            self.drop_off_package(nearest_package)
+
+
+            
     def can_take_delayed(self) -> bool:
         return self.delayed_truck

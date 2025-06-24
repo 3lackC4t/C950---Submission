@@ -7,6 +7,7 @@ from package_dispatch import PackageDispatch
 import pathlib
 import threading
 import logging    
+import datetime
 
 def main():  
 
@@ -22,11 +23,15 @@ def main():
             pathlib.Path("C950---Submission\WGUPS_Impl\data\WGUPS_Package_File_Cleaned.csv"),
             "Western Governors University 4001 South 700 East, Salt Lake City, UT 84107"
         )
+    
+    normal_start = datetime.datetime.combine(datetime.date.today(), datetime.time(8, 0, 0, 0, None))
+    delayed_start = datetime.datetime.combine(datetime.date.today(), datetime.time(9, 5, 0, 0, None))
 
-    truck1: Truck = Truck(dispatcher, "truck-1")
-    truck2: Truck = Truck(dispatcher, "truck-2")
+
+    truck1: Truck = Truck(dispatcher, "truck-1", normal_start)
+    truck2: Truck = Truck(dispatcher, "truck-2", delayed_start)
     truck2.delayed_truck = True
-    truck3: Truck = Truck(dispatcher, "truck-3")
+    truck3: Truck = Truck(dispatcher, "truck-3", normal_start)
 
     truck1_thread = threading.Thread(target=truck1.do_rounds)
     truck2_thread = threading.Thread(target=truck2.do_rounds)
