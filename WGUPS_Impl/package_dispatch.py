@@ -29,21 +29,21 @@ class PackageDispatch:
             total_packages = list(reader)
        
         for package in total_packages[1::]:
-            new_package: Package = Package(package_id=package[0],
+            new_package: Package = Package(package_id=int(package[0]),
                                         address=package[1],
                                         city=package[2],
                                         zipcode=package[4],
                                         deadline=package[5],
-                                        weight=package[6],
+                                        weight=float(package[6]),
                                         note=package[7],
                                         status=Status.AT_HUB)
             
-            if new_package.note:
-                new_package.status = Status.DELAYED
+            if "Delayed on flight" in new_package.note:
+                new_package.status.on_event("DELAY_PACKAGE")
             
             all_packages.append(new_package)
-        all_packages.sort(key=lambda p: (p.deadline, bool(p.note)))
 
+        all_packages.sort(key=lambda p: (p.deadline, bool(p.note)))
         return all_packages
 
     def has_available_packages(self):
@@ -51,35 +51,39 @@ class PackageDispatch:
             return len(self.packages) > 0
         
     def get_packages_for_truck(self, truck, capacity_needed: int):
+        print("Taking Packages from Hub")
         packages_to_load = []
 
         with self.package_lock:
-            available_packages = [p for p in self.packages if p.package_id not in self.delivered_packages]
-
-            if not available_packages:
+            print("Packages Locked")
+            if not self.has_available_packages():
                 print("No packages available at hub")
                 return packages_to_load
+            
+            packages_to_assign = []
 
-            packages_to_assign = available_packages[:capacity_needed]
+            for package in self.packages:
+                print(f"Checking package {package.package_id}")
+                if ("Can only be on truck 2" in package.note or package.package_id == 15) and truck.truckId != "truck-2":
+                    continue
+
+                if package.status == Status.DELAYED and not truck.can_take_delayed():
+                    continue
+
+                if len(packages_to_assign) < capacity_needed:
+                    packages_to_assign.append()
+                else:
+                    break
 
             for package in packages_to_assign:
-                new_status = package.status.on_event("LOAD_TRUCK")
+                print(f"Loading package {package.package_id}")
+                new_status = package.status.on_event()
                 if new_status:
-                    if package.status == Status.DELAYED:
-                        if truck.can_take_delayed():     
-                            package.status = new_status
-                        else:
-                            continue
-                    else:
-                        package.status = new_status
-                else:
-                    logging.error("Invalid State Change")
+                    package.status = new_status
+                packages_to_load.append(package)
+                self.packages.remove(package)
+                package.package_log.append(f"[{package.package_id}] - [{truck.current_time_readable()}] : Package [{package.package_id}] loaded onto truck [{truck.truckId}]")
 
-                if package.status == Status.EN_ROUTE:
-                    packages_to_load.append(package)
-                    self.packages.remove(package)
-                    package.package_log.append((f"[{package.package_id}] - [{truck.current_time_readable()}] : Assigned package {package.package_id} to truck {getattr(truck, 'truckId', 'UNKOWN')}"))
-                
         return packages_to_load
 
     def mark_delivered(self, package: Package):

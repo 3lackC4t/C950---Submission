@@ -52,6 +52,7 @@ class Truck:
         return (len(self.packages) == 0 and self.dispatcher.has_available_packages())
 
     def load_packages(self):
+        print("Loading Packages")
         capacity_needed = self.max_inventory - len(self.packages)
 
         if self.current_location != self.dispatcher.location:
@@ -66,32 +67,36 @@ class Truck:
         return len(new_packages) > 0
 
     def find_nearest_package(self):
+        print("Finding Nearest Package")
         if not self.packages:
-            return None
+            return None, 0
         
         min_distance = float("inf")
         nearest_package = None
 
         for package in self.packages:
             address = package.address
-            if package.package_id == 9 and self.current_time.time() >= datetime.time(hour=10, minute=20):
-                package.address = "410 S. State St., Salt Lake City, UT 84111"
+            if package.package_id == 9:
+                if self.current_time.time() >= datetime.time(hour=10, minute=20):
+                    package.address = "410 S. State St., Salt Lake City, UT 84111"
+                else:
+                    continue
+            
+            current_indx = self.distance_index_map[self.current_location]
+            destination_indx = self.distance_index_map[address]
+            distance = self.get_distance(current_indx, destination_indx)
 
             deadline_prio = 1
             if package.deadline.time() <= datetime.time(hour=10, minute=20):
                 deadline_prio = 0.5
 
-            current_indx = self.distance_index_map[self.current_location]
-            destination_indx = self.distance_index_map[address]
-
-            distance = self.get_distance(current_indx, destination_indx)
             weighted_distance = distance * deadline_prio
 
-            if weighted_distance <= min_distance:
+            if weighted_distance < min_distance:
                 min_distance = distance
                 nearest_package = package
 
-            return nearest_package, min_distance
+        return nearest_package, min_distance
 
     def move_truck(self, address: str, distance: float) -> int:
         self.current_location = address
@@ -125,7 +130,5 @@ class Truck:
             self.move_truck(address, min_distance)
             self.drop_off_package(nearest_package)
 
-
-            
     def can_take_delayed(self) -> bool:
         return self.delayed_truck
