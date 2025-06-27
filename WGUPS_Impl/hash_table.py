@@ -34,6 +34,8 @@ class HashTable:
             self.table[package_hash] = package 
             self.size += 1
 
+    # Searches the hash table using a given package id if one is found it will check to see if the 
+    # node is in a chain and if so performs standard linked list logic to remove it.
     def remove_node(self, package_id):
         index = self._make_hash(package_id)
         current: Package = self.table[index]
@@ -52,6 +54,7 @@ class HashTable:
 
         raise KeyError(package_id)
 
+    # Return a package by it's ID
     def lookup(self, package_id):
         current: Package= self.table[self._make_hash(package_id)]
         while current:
@@ -61,6 +64,7 @@ class HashTable:
         
         raise KeyError(package_id)
     
+    # Print the has table, useful for replicating python's standard dictionary methods
     def __str__(self):
         result = []
         for package in self.table:
@@ -72,6 +76,7 @@ class HashTable:
 
         return str(result)
 
+    # Be able to use the hash table in a for loop
     def __iter__(self):
         for package in self.table:
             current = package
@@ -79,9 +84,11 @@ class HashTable:
                 yield current
                 current = current.next
     
+    # be able to use len() on a hash table to return it's current size
     def __len__(self):
         return self.size
-    
+
+    # Be able to use the 'in' keyword on a hashtable 
     def __contains__(self, package_id):
         try:
             self.lookup(package_id)

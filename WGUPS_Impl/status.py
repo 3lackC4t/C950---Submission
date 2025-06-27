@@ -1,11 +1,16 @@
 from enum import Enum
 
+"""
+    Extends the Enum class to create a state-machine for package status
+"""
 class Status(Enum):
     AT_HUB = "At Hub"
     EN_ROUTE = "En Route"
     DELIVERED = "Delivered"
     DELAYED = "Delayed"
 
+    # State machine manager is used as an interface to change a package's state.
+    # Only returns a state object in the event of a valid state change
     def on_event(self, event: str):
         state_machine = {
             (Status.AT_HUB, "LOAD_TRUCK"): Status.EN_ROUTE,

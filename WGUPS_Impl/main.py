@@ -23,57 +23,51 @@ def main():
             pathlib.Path("C950---Submission\WGUPS_Impl\data\WGUPS_Package_File_Cleaned.csv"),
             "Western Governors University 4001 South 700 East, Salt Lake City, UT 84107"
         )
-    
+
+    # Were using two trucks (only two drivers) and one will be dedicated to taking delayed packages
+    # Because of this a normal and delayed start time are defined 
     normal_start = datetime.datetime.combine(datetime.date.today(), datetime.time(8, 0, 0, 0, None))
     delayed_start = datetime.datetime.combine(datetime.date.today(), datetime.time(9, 5, 0, 0, None))
 
-
+    # Create truck objects and selects who is the delayed truck
     truck1: Truck = Truck(dispatcher, "truck-1", normal_start)
     truck2: Truck = Truck(dispatcher, "truck-2", delayed_start)
     truck2.delayed_truck = True
     truck3: Truck = Truck(dispatcher, "truck-3", normal_start)
 
+    # Using the python threading library, start each truck thread targeting it's core loop 'do_rounds'
     truck1_thread = threading.Thread(target=truck1.do_rounds)
     truck2_thread = threading.Thread(target=truck2.do_rounds)
 
+    # Start and then "join" (finish) each trucks core loop
     truck1_thread.start()
     truck2_thread.start()
 
     truck1_thread.join()
     truck2_thread.join() 
 
+
+    # Convenience print for informing the use that the simulation is complete and printing the total miles driven.
     print(f"""
             Final package delivered
             Total Miles Driven: {truck1.miles_driven + truck2.miles_driven:.2f}
         """)
-    
+
     while True:
-        user_input = input("Key - Lookup, print all or quit? [l/p/q]")    
-        if user_input == 'l' or user_input =='L':
-            while True:
-                try:
-                    package_lookup = input("Input desired package id: ")
-                    if package_lookup == 'q' or package_lookup == 'Q':
-                        break
-                    else:
-                        package = dispatcher.delivered_packages.lookup(package_lookup)
-                        print(package)
-                        print(f"PACKAGE LOG FOR {package.package_id}")
-                        for log in package.package_log:
-                            print(log)
-                except KeyError:
-                    print("Package ID not found, please enter a valid ID or 'q' for quit")
-        elif user_input == 'p' or user_input == 'P':
-            for package in dispatcher.delivered_packages:
-                print("=+"*26)
+        user_input = input("Would you like to inspect a specific package's manifest? [Y/n]")
+        if user_input == 'Y':
+            package_select = input("Type the number of the package you want to inspect, or type 'q' to quit: ")
+            if package_select == 'q' or package_select == 'Q':
+                break
+            else:
+                package = dispatcher.delivered_packages.lookup(int(package_select))
                 print(package)
-                print(f"PACKAGE LOG FOR {package.package_id}")
-                for log in package.package_log:
-                    print(log)
-                print("=+"*26)
-        elif user_input == 'q' or 'Q':
-            print("Thank you and have a good day")
+                package.print_log()
+        elif user_input == 'n':
             break
+        else:
+            print("Unkown input detected please type 'Y' or 'n'")
+
 
 if __name__ == "__main__":
     main()

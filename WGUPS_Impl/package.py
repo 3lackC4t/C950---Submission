@@ -1,5 +1,10 @@
 from status import Status
 from datetime import datetime
+
+"""
+    The Package class contains the logic for creating a package object as well as for 
+    converting the string formatted deadlines found in the package CSV file.
+"""
 class Package:
     def __init__(self, package_id: int, 
                  address: str, 
@@ -31,6 +36,7 @@ class Package:
             raw_time = datetime.strptime(deadline_str, "%I:%M %p").time()
             return datetime.combine(base_date, raw_time)
 
+    # Provides overriding of the print() method for any given package object
     def __str__(self):
         return f"""
             Delivery Address: {self.address}
@@ -41,5 +47,10 @@ class Package:
             Note: {self.note}
             Status: {self.status.value}
         """
+
+    # Interface to print the packages logs 
+    def print_log(self):
+        for indx, log in enumerate(self.package_log):
+            print(f"[{indx}] - {log}")
 
 
