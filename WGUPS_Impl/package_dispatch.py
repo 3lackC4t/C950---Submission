@@ -5,8 +5,7 @@ from status import Status
 import threading
 import csv
 import pathlib
-import datetime
-
+import copy
 """
 PackageDispatch handles all logic pertaining to scheduling and distributing
 packages to trucks. The create_available_packages method plays a part in ensuring
@@ -16,7 +15,8 @@ and delayed packages second.
 class PackageDispatch:
     def __init__(self, csv_file_path: pathlib.Path, location: str):
         self.packages = self.load_all_packages(csv_file_path)
-        self.delivered_packages = HashTable(len(self.packages))
+        self.package_interface = self.build_interface() 
+        self.package_history = {}
         self.location = location
         self.package_lock = threading.Lock()
 
@@ -45,12 +45,23 @@ class PackageDispatch:
                 new_status = new_package.status.on_event("DELAY_PACKAGE")
                 if new_status:
                     new_package.status = new_status
-                    print(f"{new_package.package_id} marked as {new_package.status}")
             
             all_packages.append(new_package)
 
         all_packages.sort(key=lambda p: (p.deadline, bool(p.note)))
         return all_packages
+    
+    def build_interface(self):
+        interface = HashTable(len(self.packages))
+        for package in self.packages:
+            interface.insert_node(package)
+        return interface
+    
+    def snapshot(self, truck):
+        interface_copy: HashTable = copy.deepcopy(self.package_interface)
+        timestamp = truck.current_time.hour
+        if timestamp not in self.package_history:
+            self.package_history[timestamp] = (truck.current_time, interface_copy)
 
     # Checks to see if there are packages to take from the dispatch
     def has_available_packages(self):
@@ -102,5 +113,5 @@ class PackageDispatch:
     def mark_delivered(self, package: Package):
         with self.package_lock:
             package.status = package.status.on_event("DELIVER")
-            self.delivered_packages.insert_node(package)
+            self.package_interface.insert_node(package)
 

@@ -46,6 +46,8 @@ def main():
     truck1_thread.join()
     truck2_thread.join() 
 
+    print("", flush=True)
+
 
     # Convenience print for informing the use that the simulation is complete and printing the total miles driven.
     print(f"""
@@ -54,8 +56,8 @@ def main():
         """)
 
     while True:
-        user_input = input("Would you like to inspect a specific package's manifest? [Y/n]")
-        if user_input == 'Y':
+        user_input = input("Would you like to inspect a specific package's manifest or review a specific time? [P/T]")
+        if user_input == 'P':
             package_select = input("Type the number of the package you want to inspect, or type 'q' to quit: ")
             if package_select == 'q' or package_select == 'Q':
                 break
@@ -63,8 +65,15 @@ def main():
                 package = dispatcher.delivered_packages.lookup(int(package_select))
                 print(package)
                 package.print_log()
-        elif user_input == 'n':
-            break
+        elif user_input == 'T':
+            print("Available times to view are as follows")
+            for key in dispatcher.package_history:
+                print(f"{key}:00")
+            time_select = int(input("Select an hour to view the status of all packages at that time: ").split(":")[0])
+            timestamp, interface = dispatcher.package_history[time_select]
+            print(f"viewing package status for timestamp {timestamp}")
+            for package in interface:
+                print(package)
         else:
             print("Unkown input detected please type 'Y' or 'n'")
 

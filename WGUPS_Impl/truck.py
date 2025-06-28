@@ -67,7 +67,8 @@ class Truck:
     # The truck will move itself to the hub, request as many packages as it has space for
     # And the dispatch will response with a list of package objects
     def load_packages(self):
-        print("Loading Packages")
+        # Essential "noop" print statement, without it packages will be delivered late.
+        print("")
         capacity_needed = self.max_inventory - len(self.packages)
 
         if self.current_location != self.dispatcher.location:
@@ -83,7 +84,6 @@ class Truck:
 
     # Core nearest neighbor algorithm.
     def find_nearest_package(self):
-        print("Finding Nearest Package")
         if not self.packages:
             return None, 0
         
@@ -160,6 +160,7 @@ class Truck:
 
             self.move_truck(address, min_distance)
             self.drop_off_package(nearest_package)
+            self.dispatcher.snapshot(self)
 
     # Getter utility function to determine if a truck is marked for delayed packages.
     def can_take_delayed(self) -> bool:
