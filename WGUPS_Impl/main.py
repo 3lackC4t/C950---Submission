@@ -46,9 +46,6 @@ def main():
     truck1_thread.join()
     truck2_thread.join() 
 
-    print("", flush=True)
-
-
     # Convenience print for informing the use that the simulation is complete and printing the total miles driven.
     print(f"""
             Final package delivered
@@ -56,26 +53,39 @@ def main():
         """)
 
     while True:
-        user_input = input("Would you like to inspect a specific package's manifest or review a specific time? [P/T]")
-        if user_input == 'P':
+        user_input = input("Would you like to inspect a specific package's manifest or review a specific time? [P/T]: ")
+        if user_input.lower() == 'p':
             package_select = input("Type the number of the package you want to inspect, or type 'q' to quit: ")
             if package_select == 'q' or package_select == 'Q':
                 break
             else:
-                package = dispatcher.delivered_packages.lookup(int(package_select))
-                print(package)
-                package.print_log()
-        elif user_input == 'T':
+                try:
+                    package = dispatcher.package_interface.lookup(int(package_select))
+                    print(package)
+                    package.print_log()
+                except AttributeError or KeyError:
+                    print(f"{package_select} is not the ID of a package in the inventory, try again")
+                    continue
+        elif user_input.lower() == 't':
+            print("Input a time to view the complete package interface for that hours log. Or input 'q' to exit")
             print("Available times to view are as follows")
             for key in dispatcher.package_history:
                 print(f"{key}:00")
-            time_select = int(input("Select an hour to view the status of all packages at that time: ").split(":")[0])
+            time_select = int(input("Select an hour to view the status of all packages at that time or 'q': ").split(":")[0])
+            if time_select == 'q' or time_select == 'Q':
+                break
             timestamp, interface = dispatcher.package_history[time_select]
             print(f"viewing package status for timestamp {timestamp}")
             for package in interface:
-                print(package)
+                pack_id = package.package_id
+                status = package.status
+                print(f"Package: [{pack_id}] - Status: {status}")
+                for log in package.package_log:
+                    print(log) 
+        elif user_input.lower() == 'q':
+            break
         else:
-            print("Unkown input detected please type 'Y' or 'n'")
+            print("Unkown input detected please type 'P' or 'T'")
 
 
 if __name__ == "__main__":
