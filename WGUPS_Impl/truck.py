@@ -30,7 +30,7 @@ class Truck:
 
     # Extracts the distance data from CSV file
     def get_distance_data(self):
-        with open(pathlib.Path("C950---Submission\WGUPS_Impl\data\WGUPS_Distance_Table_Cleaned.csv"), newline="") as csvfile:
+        with open(pathlib.Path("WGUPS_Impl/data/WGUPS_Distance_Table_Cleaned.csv"), newline="") as csvfile:
             reader = csv.reader(csvfile)
             return list(reader)
     
@@ -103,11 +103,16 @@ class Truck:
                 else:
                     continue
             # Accounts for the fact that unless specifically prioritized the algorithm will wait
-            # until the end of the day to deliver this package
+            # until the end of the day to deliver these packages
             elif package.package_id == 6:
                 current_indx = self.distance_index_map[self.current_location]
                 destination_indx = self.distance_index_map[address]
                 return package, self.get_distance(current_indx, destination_indx)
+            elif package.package_id == 25:
+                current_indx = self.distance_index_map[self.current_location]
+                destination_indx = self.distance_index_map[address]
+                return package, self.get_distance(current_indx, destination_indx)
+
             
             current_indx = self.distance_index_map[self.current_location]
             destination_indx = self.distance_index_map[address]

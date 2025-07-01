@@ -39,6 +39,7 @@ class Package:
     # Provides overriding of the print() method for any given package object
     def __str__(self):
         return f"""
+            PACKAGE ID: [{self.package_id}]
             Delivery Address: {self.address}
             Deadline: {self.deadline}
             City: {self.city}
