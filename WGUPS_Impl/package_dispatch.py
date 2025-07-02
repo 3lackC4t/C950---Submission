@@ -41,6 +41,8 @@ class PackageDispatch:
                                         note=package[7],
                                         status=Status.AT_HUB)
             
+            new_package.package_log.append(f"Package {new_package.package_id} loaded from data file, current status: {new_package.status}, current expected destination: {new_package.address}, current deadline: {new_package.deadline}")
+            
             if "Delayed on flight" in new_package.note:
                 new_status = new_package.status.on_event("DELAY_PACKAGE")
                 if new_status:
@@ -57,6 +59,7 @@ class PackageDispatch:
             interface.insert_node(package)
         return interface
     
+    # Creates a snapshot of the current status of all packages and stores it in the dispatche's package history.
     def snapshot(self, truck):
         interface_copy: HashTable = copy.deepcopy(self.package_interface)
         timestamp = truck.current_time.hour

@@ -108,6 +108,7 @@ class Truck:
                 current_indx = self.distance_index_map[self.current_location]
                 destination_indx = self.distance_index_map[address]
                 return package, self.get_distance(current_indx, destination_indx)
+
             elif package.package_id == 25:
                 current_indx = self.distance_index_map[self.current_location]
                 destination_indx = self.distance_index_map[address]
