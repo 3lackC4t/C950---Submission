@@ -5,9 +5,9 @@ from simulator_app.package_dispatch import PackageDispatch
 
 import pathlib
 import threading
-import logging    
 import datetime
 import os
+import pprint
 
 app = Flask(__name__)
 CORS(app)
@@ -30,7 +30,8 @@ def home():
 def get_history():
     run_simulation()
     if (request.method == 'GET'):
-        return simulation_data['package_history']
+        print("Called history GET method")
+        return jsonify(simulation_data['package_history'])
 
 
 def fix_location():
@@ -80,6 +81,10 @@ def run_simulation():
             truck2.get_truck_data(),
             truck3.get_truck_data()
         ]
+        print(f"SIM COMPLETE: {simulation_data['simulation_complete']}")
+        print(f"TOTAL MILES: {simulation_data['total_miles']}")
+        pp = pprint.PrettyPrinter(indent=4, width=240, depth=5)
+        pp.pprint(simulation_data['package_history'])
     except Exception as e:
         simulation_data['error'] = str(e)
         print(f"Simulation Error: {e}")

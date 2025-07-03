@@ -43,14 +43,14 @@ class Package:
         return {
             "ID": self.package_id,
             "ADDRESS": self.address,
-            "DEADLINE": self.deadline,
+            "DEADLINE": self.deadline.isoformat() if hasattr(self.deadline, 'isoformat') else str(self.deadline),
             "CITY": self.city,
             "ZIPCODE": self.zipcode,
             "WEIGHT": self.weight,
             "NOTE": self.note,
             "STATUS": self.status.value,
             "PACKAGE_LOG": self.package_log,
-            "DELIVERY_TIME": self.delivery_time,
+            "DELIVERY_TIME": self.delivery_time.isoformat() if self.delivery_time and hasattr(self.delivery_time, 'isoformat') else None,
         }
 
     # Provides overriding of the print() method for any given package object

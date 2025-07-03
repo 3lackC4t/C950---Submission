@@ -41,7 +41,7 @@ class PackageDispatch:
                                         note=package[7],
                                         status=Status.AT_HUB)
             
-            new_package.package_log.append(f"Package {new_package.package_id} loaded from data file, current status: {new_package.status}, current expected destination: {new_package.address}, current deadline: {new_package.deadline}")
+            new_package.package_log.append(f"Package {new_package.package_id} loaded from data file, current status: {new_package.status.value}, current expected destination: {new_package.address}, current deadline: {new_package.deadline}")
             
             if "Delayed on flight" in new_package.note:
                 new_status = new_package.status.on_event("DELAY_PACKAGE")
@@ -65,15 +65,20 @@ class PackageDispatch:
         if not final:
             interface_copy: HashTable = copy.deepcopy(self.package_interface)
             serializable_interface = interface_copy.to_dict()
-            timestamp = truck.current_time.hour
+            timestamp = int(truck.current_time.hour)
             if timestamp not in self.package_history:
-                self.package_history[timestamp] = (truck.current_time, interface_copy)
+                self.package_history[timestamp] = {
+                    'time_stamp': truck.current_time.isoformat() if hasattr(truck.current_time, 'isoformat') else str(truck.current_time),
+                    'history': serializable_interface
+                }
         else:
             interface_copy: HashTable = copy.deepcopy(self.package_interface)
             serializable_interface = interface_copy.to_dict()
             timestamp = truck.current_time.hour
-            self.package_history['FINAL'] = (truck.current_time, interface_copy)
-
+            self.package_history['FINAL'] = {
+                'time_stamp': truck.current_time.isoformat() if hasattr(truck.current_time, 'isoformat') else str(truck.current_time),
+                'history': serializable_interface
+            } 
 
     # Checks to see if there are packages to take from the dispatch
     def has_available_packages(self):

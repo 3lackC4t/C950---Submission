@@ -73,14 +73,14 @@ class HashTable:
         # For each node in the table, turn that node and any nodes chained to it
         # in a linked list to dictionary objects.
         for node in self.table:
-            
+
             current = node
 
             while current is not None:
                 res[str(current.package_id)] = current.to_dict()
                 current = current.next
             
-            return res
+        return res
 
     # Print the has table, useful for replicating python's standard dictionary methods
     def __str__(self):
