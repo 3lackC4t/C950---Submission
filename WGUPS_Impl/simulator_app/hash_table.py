@@ -1,4 +1,4 @@
-from package import Package
+from simulator_app.package import Package
 
 class HashTable:
     def __init__(self, capacity):
@@ -64,6 +64,24 @@ class HashTable:
         
         raise KeyError(package_id)
     
+    # In order to output the HashTable object and it's contents to
+    # The API endpoint it will have to be serializable as a python
+    # dictionary
+    def to_dict(self):
+        res = {}
+
+        # For each node in the table, turn that node and any nodes chained to it
+        # in a linked list to dictionary objects.
+        for node in self.table:
+            
+            current = node
+
+            while current is not None:
+                res[str(current.package_id)] = current.to_dict()
+                current = current.next
+            
+            return res
+
     # Print the has table, useful for replicating python's standard dictionary methods
     def __str__(self):
         result = []

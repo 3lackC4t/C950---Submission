@@ -1,4 +1,4 @@
-from status import Status
+from simulator_app.status import Status
 from datetime import datetime
 
 """
@@ -35,6 +35,23 @@ class Package:
         else: 
             raw_time = datetime.strptime(deadline_str, "%I:%M %p").time()
             return datetime.combine(base_date, raw_time)
+        
+    # The package objects will have to be serializable in order to pass them to the front end via
+    # restful API, so this method will do that for us by turning them into python
+    # dictionaries in order to 'jsonify'
+    def to_dict(self):
+        return {
+            "ID": self.package_id,
+            "ADDRESS": self.address,
+            "DEADLINE": self.deadline,
+            "CITY": self.city,
+            "ZIPCODE": self.zipcode,
+            "WEIGHT": self.weight,
+            "NOTE": self.note,
+            "STATUS": self.status.value,
+            "PACKAGE_LOG": self.package_log,
+            "DELIVERY_TIME": self.delivery_time,
+        }
 
     # Provides overriding of the print() method for any given package object
     def __str__(self):

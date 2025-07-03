@@ -1,5 +1,5 @@
-from package import Package
-from package_dispatch import PackageDispatch
+from simulator_app.package import Package
+from simulator_app.package_dispatch import PackageDispatch
 
 import datetime
 import pathlib
@@ -27,6 +27,12 @@ class Truck:
         self.distance_data = self.get_distance_data()
         self.distance_index_map = self.get_distance_map()
         self.packages: list = []
+
+    def get_truck_data(self):
+        return {
+            'ID': self.truckId,
+            'miles_driven': self.miles_driven
+        }
 
     # Extracts the distance data from CSV file
     def get_distance_data(self):
@@ -148,10 +154,12 @@ class Truck:
         while True:
             if len(self.packages) == 0 and self.dispatcher.has_available_packages():
                 if not self.load_packages():
+                    self.dispatcher.snapshot(self, final=True)
                     break
                 continue
 
             if len(self.packages) == 0:
+                self.dispatcher.snapshot(self, final=True)
                 break
 
             nearest_package, min_distance = self.find_nearest_package()

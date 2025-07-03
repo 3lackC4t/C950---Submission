@@ -1,6 +1,6 @@
-from hash_table import HashTable
-from package import Package
-from status import Status
+from simulator_app.hash_table import HashTable
+from simulator_app.package import Package
+from simulator_app.status import Status
 
 import threading
 import csv
@@ -59,12 +59,21 @@ class PackageDispatch:
             interface.insert_node(package)
         return interface
     
+    
     # Creates a snapshot of the current status of all packages and stores it in the dispatche's package history.
-    def snapshot(self, truck):
-        interface_copy: HashTable = copy.deepcopy(self.package_interface)
-        timestamp = truck.current_time.hour
-        if timestamp not in self.package_history:
-            self.package_history[timestamp] = (truck.current_time, interface_copy)
+    def snapshot(self, truck, final=False):
+        if not final:
+            interface_copy: HashTable = copy.deepcopy(self.package_interface)
+            serializable_interface = interface_copy.to_dict()
+            timestamp = truck.current_time.hour
+            if timestamp not in self.package_history:
+                self.package_history[timestamp] = (truck.current_time, interface_copy)
+        else:
+            interface_copy: HashTable = copy.deepcopy(self.package_interface)
+            serializable_interface = interface_copy.to_dict()
+            timestamp = truck.current_time.hour
+            self.package_history['FINAL'] = (truck.current_time, interface_copy)
+
 
     # Checks to see if there are packages to take from the dispatch
     def has_available_packages(self):
