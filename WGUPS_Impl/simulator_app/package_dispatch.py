@@ -65,7 +65,7 @@ class PackageDispatch:
         if not final:
             interface_copy: HashTable = copy.deepcopy(self.package_interface)
             serializable_interface = interface_copy.to_dict()
-            timestamp = int(truck.current_time.hour)
+            timestamp = str(truck.current_time.hour)
             if timestamp not in self.package_history:
                 self.package_history[timestamp] = {
                     'time_stamp': truck.current_time.isoformat() if hasattr(truck.current_time, 'isoformat') else str(truck.current_time),

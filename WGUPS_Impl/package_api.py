@@ -7,7 +7,6 @@ import pathlib
 import threading
 import datetime
 import os
-import pprint
 
 app = Flask(__name__)
 CORS(app)
@@ -19,19 +18,54 @@ simulation_data = {
     'total_miles': 0
 }
 
+def check_sim_run():
+    if not simulation_data['simulation_complete']:
+        run_simulation()
+
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if (request.method == 'GET'):
         data = "hello world"
         return jsonify({'data': data})
-    
 
-@app.route('/api/simulate/package-history', methods = ['GET'])
-def get_history():
-    run_simulation()
+@app.route('/api/simulate', methods = ['GET'])
+def get_sim_data():
+    check_sim_run()
+    return jsonify(simulation_data)
+
+
+@app.route('/api/simulate/final-state', methods = ['GET'])
+def get_final_state():
+    check_sim_run() 
+
     if (request.method == 'GET'):
-        print("Called history GET method")
-        return jsonify(simulation_data['package_history'])
+        return jsonify(simulation_data['package_history']['FINAL'])
+    
+@app.route('/api/simulate/package/<int:package_id>/history', methods = ['GET'])
+def get_package_over_time(package_id):
+    check_sim_run()
+
+    package_timeline = []
+
+    for timestamp in simulation_data['package_history']:
+        data = simulation_data['package_history'][timestamp]['history']
+        if str(package_id) in data:
+            package_data = data[str(package_id)]
+            package_timeline.append({
+                'timestamp': timestamp,
+                'time_readable': simulation_data['package_history'][timestamp]['time_stamp'],
+                'package_data': package_data
+            })
+    
+    if not package_timeline:
+        return jsonify({'error': f'Package {package_id} not found'})
+    
+    return jsonify({
+        'package_id': package_id,
+        'timeline': package_timeline,
+        'total_snapshots': len(package_timeline)
+    })
 
 
 def fix_location():
@@ -83,8 +117,6 @@ def run_simulation():
         ]
         print(f"SIM COMPLETE: {simulation_data['simulation_complete']}")
         print(f"TOTAL MILES: {simulation_data['total_miles']}")
-        pp = pprint.PrettyPrinter(indent=4, width=240, depth=5)
-        pp.pprint(simulation_data['package_history'])
     except Exception as e:
         simulation_data['error'] = str(e)
         print(f"Simulation Error: {e}")

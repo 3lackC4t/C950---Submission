@@ -107,7 +107,7 @@ class Truck:
                 if self.current_time.time() >= datetime.time(hour=10, minute=20):
                     package.address = "Third District Juvenile Court 410 S State St"
                 else:
-                    continue
+                    pass
             # Accounts for the fact that unless specifically prioritized the algorithm will wait
             # until the end of the day to deliver these packages
             elif package.package_id == 6:
