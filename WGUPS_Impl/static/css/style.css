@@ -1,0 +1,74 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    border: none;
+    margin: 0;
+}
+
+html {
+    font-size: 62.5%;
+}
+
+menu,
+ol,
+ul {
+    padding-left: 0;
+}
+
+a {
+    text-decoration: none;
+}
+
+body {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+
+}
+
+header {
+    background-color: red;
+    flex: 0 0 10%;
+}
+
+main {
+    background-color: blue;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.main-content-card {
+    background-color: green;
+    border: 0.3rem solid white;
+    border-radius: 5rem;
+    flex: 0 0 40%;
+    width: 30%;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.main-content-card.endpoints {
+    background-color: green;
+    border: 0.3rem solid white;
+    border-radius: 5rem;
+    flex: 0 0 40%;
+    width: 30%;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.main-content-card .btn {
+    justify-self: center;
+    align-self: center;
+}
+
+.hidden {
+    display: none;
+}

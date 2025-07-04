@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 from simulator_app.truck import Truck
 from simulator_app.package_dispatch import PackageDispatch
@@ -23,11 +23,15 @@ def check_sim_run():
         run_simulation()
 
 
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    if (request.method == 'GET'):
-        data = "hello world"
-        return jsonify({'data': data})
+@app.route('/')
+def index():
+    return render_template('dashboard.html')
+
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
 
 @app.route('/api/simulate', methods = ['GET'])
 def get_sim_data():
