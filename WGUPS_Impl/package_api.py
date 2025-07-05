@@ -3,10 +3,9 @@ from flask_cors import CORS
 from simulator_app.truck import Truck
 from simulator_app.package_dispatch import PackageDispatch
 
-import pathlib
+from pathlib import Path
 import threading
 import datetime
-import os
 
 app = Flask(__name__)
 CORS(app)
@@ -71,20 +70,14 @@ def get_package_over_time(package_id):
         'total_snapshots': len(package_timeline)
     })
 
-
-def fix_location():
-    curr_location = pathlib.Path.cwd()
-    if curr_location.name == "WGUPS_Impl":
-        print("TRUE")
-        os.chdir("..")
-
+BASE_DIR = Path(__file__).parent.absolute()
+PACKAGE_FILE = BASE_DIR / 'data' / 'WGUPS_Package_File_Cleaned.csv'
+DISTANCE_FILE = BASE_DIR / 'data' / 'WGUPS_Distance_Table_Cleaned.csv'
 
 def run_simulation():
 
-    fix_location()
-
     dispatcher = PackageDispatch(
-            pathlib.Path("WGUPS_Impl/data/WGUPS_Package_File_Cleaned.csv"),
+            PACKAGE_FILE,
             "Western Governors University 4001 South 700 East, Salt Lake City, UT 84107"
         )
     
@@ -94,10 +87,10 @@ def run_simulation():
     delayed_start = datetime.datetime.combine(datetime.date.today(), datetime.time(9, 5, 0, 0, None))
 
     # Create truck objects and selects who is the delayed truck
-    truck1: Truck = Truck(dispatcher, "truck-1", normal_start)
-    truck2: Truck = Truck(dispatcher, "truck-2", delayed_start)
+    truck1: Truck = Truck(dispatcher, DISTANCE_FILE, "truck-1", normal_start)
+    truck2: Truck = Truck(dispatcher, DISTANCE_FILE, "truck-2", delayed_start)
     truck2.delayed_truck = True
-    truck3: Truck = Truck(dispatcher, "truck-3", normal_start)
+    truck3: Truck = Truck(dispatcher, DISTANCE_FILE, "truck-3", normal_start)
 
     try:
         # Using the python threading library, start each truck thread targeting it's core loop 'do_rounds'

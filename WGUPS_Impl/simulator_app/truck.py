@@ -12,7 +12,7 @@ import logging
     algorithm for finding the closest package to deliver
 """
 class Truck:
-    def __init__(self, dispatcher: PackageDispatch, truckId: str, start_time: datetime):
+    def __init__(self, dispatcher: PackageDispatch, distance_path, truckId: str, start_time: datetime):
         self.avg_speed: int = 18
         self.max_inventory: int = 16
         self.truckId = truckId
@@ -22,6 +22,7 @@ class Truck:
         self.start_time = start_time
         self.current_time= self.start_time
         self.delayed_truck = False
+        self.distance_data_fp = distance_path
 
         # Create Distance Data
         self.distance_data = self.get_distance_data()
@@ -36,7 +37,7 @@ class Truck:
 
     # Extracts the distance data from CSV file
     def get_distance_data(self):
-        with open(pathlib.Path("WGUPS_Impl/data/WGUPS_Distance_Table_Cleaned.csv"), newline="") as csvfile:
+        with open(self.distance_data_fp, newline="") as csvfile:
             reader = csv.reader(csvfile)
             return list(reader)
     

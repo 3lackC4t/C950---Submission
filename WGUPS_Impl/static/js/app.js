@@ -38,7 +38,7 @@ const showInitialView = () => {
 }
 
 function showEndpointsView() {
-    mainCard.className = 'content-card endpoints';
+    mainCard.className = 'main-content-card endpoints';
     runButton.classList.add('hidden')
     aboutButton.classList.add('hidden')
 
