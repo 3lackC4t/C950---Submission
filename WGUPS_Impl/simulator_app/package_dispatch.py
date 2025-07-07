@@ -6,6 +6,7 @@ import threading
 import csv
 import pathlib
 import copy
+import datetime
 """
 PackageDispatch handles all logic pertaining to scheduling and distributing
 packages to trucks. The create_available_packages method plays a part in ensuring
@@ -107,6 +108,13 @@ class PackageDispatch:
 
                 if package.status == Status.DELAYED and truck.truckId != "truck-2":
                     continue
+
+                if package.package_id == 9:
+                    if truck.current_time.time() < datetime.time(10, 20):
+                        continue
+                    else:
+                        address = "Third District Juvenile Court 410 S State St"
+                        package.address = address
 
                 if len(packages_to_assign) < capacity_needed:
                     packages_to_assign.append(package)

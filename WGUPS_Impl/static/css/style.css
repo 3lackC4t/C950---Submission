@@ -25,52 +25,380 @@ body {
     width: 100vw;
     display: flex;
     flex-direction: column;
-
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 header {
-    background-color: red;
-    flex: 0 0 10%;
+    background-color: #2d3748;
+    flex: 0 0 8%;
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+header::after {
+    content: "Test Content";
+    color: white;
+    font-size: 2.4rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 
 main {
-    background-color: blue;
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding: 2rem;
 }
 
 .main-content-card {
-    background-color: green;
-    border: 0.3rem solid white;
-    border-radius: 5rem;
-    flex: 0 0 40%;
-    width: 30%;
-
+    background-color: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    padding: 3rem;
+    min-height: 40rem;
+    width: 50rem;
+    max-width: 90vw;
+    
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+    justify-items: center;
 }
 
 .main-content-card.endpoints {
-    background-color: green;
-    border: 0.3rem solid white;
-    border-radius: 5rem;
-    flex: 0 0 40%;
-    width: 30%;
-
     display: flex;
     flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem;
+}
+
+.main-content-card.about {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    text-align: center;
+}
+
+.main-content-card.final-state {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+/* Button Styles */
+.btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 1.6rem;
+    font-weight: 600;
+    padding: 1.5rem 3rem;
+    border-radius: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    min-width: 18rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Endpoints view - equal height buttons */
+.main-content-card.endpoints .btn {
+    width: 40%;
+    flex: 1;
+    min-height: 6rem;
+    display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.main-content-card .btn {
-    justify-self: center;
-    align-self: center;
+/* Special styling for back button */
+.main-content-card.endpoints .btn:last-child {
+    background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+    box-shadow: 0 4px 15px rgba(113, 128, 150, 0.4);
+}
+
+.main-content-card.endpoints .btn:last-child:hover {
+    box-shadow: 0 6px 20px rgba(113, 128, 150, 0.6);
 }
 
 .hidden {
     display: none;
 }
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .main-content-card {
+        width: 95vw;
+        padding: 2rem;
+        grid-template-columns: 1fr;
+    }
+    
+    .btn {
+        font-size: 1.4rem;
+        padding: 1.2rem 2rem;
+        min-width: 15rem;
+    }
+}
+
+.package-scroll-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    overflow-y: scroll;
+    border: solid 1px #667eea;
+    border-radius: 25px;
+    padding: 20px;
+    height: 350px;
+}
+
+.package-card {
+    background: white;
+    margin: 0.8rem 0;
+    border: none;
+    border-radius: 1.2rem;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+
+}
+
+.package-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.package-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.25);
+    border-radius: 1.2rem;
+}
+
+.package-card.expanded {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+}
+
+.package-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 2rem 1rem 2.5rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.package-header h3 {
+    color: #2d3748;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+.status-badge {
+    padding: 0.6rem 1.2rem;
+    border-radius: 2rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.status-delivered {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.status-transit {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+.status-pending {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+.status-at {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+}
+
+.expand-arrow {
+    font-size: 1.6rem;
+    color: #667eea;
+    transition: all 0.3s ease;
+    transform: rotate(0deg);
+    font-weight: bold;
+}
+
+.package-card.expanded .expand-arrow {
+    transform: rotate(90deg);
+}\\.package-details {
+    padding: 1.5rem 2rem 2rem 2.5rem;
+    background: white;
+}
+
+.package-details p {
+    margin: 0.8rem 0;
+    font-size: 1.4rem;
+    color: #4a5568;
+    display: flex;
+    align-items: center;
+    line-height: 1.5;
+}
+
+.package-details strong {
+    color: #2d3748;
+    font-weight: 600;
+    min-width: 8rem;
+    margin-right: 1rem;
+}
+
+/* Package Log Styles */
+.package-log {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+.package-log:not(.hidden) {
+    max-height: 500px;
+    padding: 2rem;
+}
+
+.log-header {
+    margin-bottom: 1.5rem;
+}
+
+.log-header h5 {
+    color: #2d3748;
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.log-header h5::before {
+    content: '📋';
+    font-size: 1.8rem;
+}
+
+.log-entry {
+    background: white;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 0.8rem;
+    border-radius: 0.8rem;
+    border-left: 3px solid #667eea;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.log-entry:hover {
+    transform: translateX(3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.log-entry::before {
+    content: '•';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    background: #667eea;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.log-text {
+    margin: 0;
+    color: #4a5568;
+    font-size: 1.3rem;
+    line-height: 1.4;
+    font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+}
+
+/* Enhanced scroll container */
+.package-scroll-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow-y: auto;
+    border: 2px solid #e2e8f0;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    height: 350px;
+    background: #f8fafc;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.package-scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.package-scroll-container::-webkit-scrollbar-track {
+    background: #e2e8f0;
+    border-radius: 4px;
+}
+
+.package-scroll-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+}
+
+.package-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+/* Loading animation for when cards are being created */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.package-card {
+    animation: slideIn 0.3s ease forwards;
+}
+

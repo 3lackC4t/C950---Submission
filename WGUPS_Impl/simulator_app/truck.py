@@ -169,9 +169,6 @@ class Truck:
                 break
 
             address = nearest_package.address
-            if nearest_package.package_id == 9 and self.current_time.time() >= datetime.time(10, 20):
-                address = "Third District Juvenile Court 410 S State St"
-                nearest_package.address = address
 
             self.move_truck(address, min_distance)
             self.drop_off_package(nearest_package)
