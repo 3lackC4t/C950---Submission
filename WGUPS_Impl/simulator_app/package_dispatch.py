@@ -42,7 +42,7 @@ class PackageDispatch:
                                         note=package[7],
                                         status=Status.AT_HUB)
             
-            new_package.package_log.append(f"Package {new_package.package_id} loaded from data file, current status: {new_package.status.value}, current expected destination: {new_package.address}, current deadline: {new_package.deadline}")
+            new_package.package_log.append(f"[{new_package.package_id}] - [08:00:00] : loaded from data file, current status: {new_package.status.value}, current expected destination: {new_package.address}, current deadline: {new_package.deadline}")
             
             if "Delayed on flight" in new_package.note:
                 new_status = new_package.status.on_event("DELAY_PACKAGE")
@@ -99,6 +99,7 @@ class PackageDispatch:
                         
             packages_to_assign = []
 
+            # Specific logic for handling the notes that each package may have
             for package in self.packages:
                 if "Can only be on truck 2" in package.note and truck.truckId != "truck-2":
                     continue
@@ -117,6 +118,7 @@ class PackageDispatch:
                         package.address = address
 
                 if len(packages_to_assign) < capacity_needed:
+                    package.truck_id = truck.truckId
                     packages_to_assign.append(package)
                 else:
                     break

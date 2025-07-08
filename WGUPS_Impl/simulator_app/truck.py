@@ -2,9 +2,7 @@ from simulator_app.package import Package
 from simulator_app.package_dispatch import PackageDispatch
 
 import datetime
-import pathlib
 import csv
-import logging
 
 """
     The Truck class handles representing the actions of individual trucks. It is used to get perform
@@ -51,7 +49,7 @@ class Truck:
 
     # Returns the current time in a human readable format       
     def current_time_readable(self):
-        return self.current_time.strftime("%I:%M:%S :p")
+        return self.current_time.strftime("%I:%M:%S")
     
     # removes a package from the truck's inventory, marks it as delivered, and logs the time in
     # the packages log.
@@ -60,9 +58,9 @@ class Truck:
             package.delivery_time = self.current_time
             self.dispatcher.mark_delivered(package)
             self.packages.remove(package)
-            package.package_log.append((f"[{package.package_id}] - [{self.current_time_readable()}] : Delivered package at {self.current_location} at time: {self.current_time_readable()} :: DEADLINE: {package.deadline}"))
+            package.package_log.append((f"[{package.package_id}] - [{self.current_time_readable()}] : Delivered package at {self.current_location}"))
             if self.current_time > package.deadline:
-                logging.error(f"[{package.package_id}] - [{self.current_time_readable()}] : THIS PACKAGE WAS DELIVERED LATE!!!")
+                package.package_log.append(f"[{package.package_id}] - [{self.current_time_readable()}] : Package delivered late!")
         else:
             raise AttributeError(f"Package Not Found")
 
@@ -109,6 +107,7 @@ class Truck:
                     package.address = "Third District Juvenile Court 410 S State St"
                 else:
                     pass
+
             # Accounts for the fact that unless specifically prioritized the algorithm will wait
             # until the end of the day to deliver these packages
             elif package.package_id == 6:

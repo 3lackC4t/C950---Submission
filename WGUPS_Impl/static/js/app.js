@@ -13,8 +13,9 @@ const handleAbout = () => {
     mainCard.innerHTML = `
         <h2 style="font-size: 2.4rem; color: #2d3748; margin-bottom: 1.5rem;">About WGUPS</h2>
         <p style="font-size: 1.6rem; color: #4a5568; line-height: 1.6; margin-bottom: 2rem;">
-            This is a routing simulation system for Western Governors University Parcel Service. 
-            It demonstrates various routing algorithms and package delivery optimization strategies.
+            This is a routing simulation system for Western Governors University Parcel Service.
+            It demonstrates the use of a greedy algorithm for package prioritization and an implementation of
+            the 'Nearest Neighbor' algorithm for route selection.
         </p>
     `;
     
@@ -72,6 +73,15 @@ function createPackageCard(packageData) {
     card.className = 'package-card';
     card.packageData = packageData;
 
+    let delivery = null;
+
+    // Captures if delivery time is not available (not delivered)
+    if (packageData.DELIVERY_TIME != null) {
+        delivery = packageData.DELIVERY_TIME;
+    } else {
+        delivery = "N/A";
+    }
+
     card.innerHTML = `
         <div class='package-header'>
             <h3>Package #${packageData.ID}</h3>
@@ -79,10 +89,13 @@ function createPackageCard(packageData) {
                 ${packageData.STATUS}
             </span>
         </div>
-        <div class="package-details">
+        <div class="package-details" style="text-align: left;">
+            <p><strong>Address:</strong>${packageData.TRUCK_ID || 'N/A'}</p>
             <p><strong>Address:</strong>${packageData.ADDRESS || 'N/A'}</p>
             <p><strong>Weight:</strong>${packageData.WEIGHT || 'N/A'}</p>
-            <p><strong>Deadline:</strong>${packageData.DEADLINE || 'N/A'}</p>
+            <p><strong>Note:</strong>${packageData.NOTE || 'N/A'}</p>
+            <p><strong>Delivered:</strong>${delivery}</p>
+            <p><strong>Deadline:</strong>${(packageData.DEADLINE).split("T")[1] || 'N/A'}</p>
         </div>
         <div class="package-log hidden">
         
@@ -121,13 +134,52 @@ function togglePackageLog(card) {
 
 const showTimeline = () => {
     console.log("Show Timeline");
-    // TODO: Implement timeline view
-};
+    mainCard.className = "main-content-card timeline";
+    mainCard.innerHTML = "";
 
-const showSummary = () => {
-    console.log("Show summary");
-    // TODO: Implement summary view
-};
+    // Basic description
+    const title = document.createElement('h2');
+    title.textContent = "Package Status Timeline";
+    title.style.cssText = 'font-size: 2.4rem; color: #2d3748; margin-bottom: 1rem; text-align: center;';
+    mainCard.appendChild(title);
+
+    const subtitle = document.createElement('p');
+    subtitle.textContent = "Select a timestamp from the following in order to view status of all packages at that time";
+    subtitle.style.cssText = 'font-size: 1.6rem; color: #4a5568; margin-bottom: 2rem; text-align: center;';
+    mainCard.appendChild(subtitle); 
+
+    // Create buttons for selected timestamps
+    let packageHistory = simulationData.package_history;
+    Object.keys(packageHistory).forEach(timestamp => {
+        if (timestamp != "FINAL") {
+            const timeStampSelect = makeButton(`${timestamp}:00`, "btn");
+            timeStampSelect.addEventListener("click", () => showTimestampView(timestamp));
+            mainCard.appendChild(timeStampSelect);
+        }
+    });
+
+    mainCard.appendChild(makeButton('Back', 'btn', showEndpointsView));
+}
+
+function showTimestampView(timeStamp) {
+    mainCard.innerHTML = "";
+
+    let packages = simulationData.package_history[timeStamp].history;
+        
+    // Create scrollable container
+    const scrollContainer = document.createElement('div');
+    scrollContainer.className = 'package-scroll-container';
+   
+    // Generate cards from simulation data
+    Object.keys(packages).forEach(pkgId => {
+        const card = createPackageCard(packages[pkgId]);
+        scrollContainer.appendChild(card);
+    });
+    
+    mainCard.appendChild(scrollContainer);
+    mainCard.appendChild(makeButton('Back', 'btn', showTimeline));
+
+}
 
 const showInitialView = () => {
     // Reset to initial state
@@ -160,16 +212,21 @@ function showEndpointsView() {
     title.style.cssText = 'font-size: 2.4rem; color: #2d3748; margin-bottom: 1rem; text-align: center;';
     mainCard.appendChild(title);
     
+    // Show final miles driven
+    const totalMiles = document.createElement('p');
+    totalMiles.textContent = `Total Miles Driven: ${Math.round(simulationData.total_miles)}`;
+    totalMiles.style.cssText = 'font-size: 1.6rem; color: #4a5568; margin-bottom: 2rem; text-align: center;';
+    mainCard.appendChild(totalMiles);    
+
     // Add subtitle
     const subtitle = document.createElement('p');
     subtitle.textContent = 'Choose what you\'d like to view:';
     subtitle.style.cssText = 'font-size: 1.6rem; color: #4a5568; margin-bottom: 2rem; text-align: center;';
-    mainCard.appendChild(subtitle);
-    
-    // Add buttons - these will be equally distributed due to flexbox
+    mainCard.appendChild(subtitle);    
+
+    // Add buttons
     mainCard.appendChild(makeButton('View Final State', 'btn', showFinalState));
     mainCard.appendChild(makeButton('Package Timeline', 'btn', showTimeline));
-    mainCard.appendChild(makeButton('Summary Stats', 'btn', showSummary));
     mainCard.appendChild(makeButton('Back', 'btn', showInitialView));
 }
 

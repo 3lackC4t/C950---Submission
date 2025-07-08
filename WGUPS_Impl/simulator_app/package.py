@@ -25,6 +25,7 @@ class Package:
         self.status = status
         self.package_log = []
         self.delivery_time = None
+        self.truck_id = None
         self.next = None 
 
     def convert_deadline(self, deadline_str: str):
@@ -42,6 +43,7 @@ class Package:
     def to_dict(self):
         return {
             "ID": self.package_id,
+            "TRUCK_ID": self.truck_id,
             "ADDRESS": self.address,
             "DEADLINE": self.deadline.isoformat() if hasattr(self.deadline, 'isoformat') else str(self.deadline),
             "CITY": self.city,
