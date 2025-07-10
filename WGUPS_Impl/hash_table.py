@@ -64,9 +64,7 @@ class HashTable:
         
         raise KeyError(package_id)
     
-    # In order to output the HashTable object and it's contents to
-    # The API endpoint it will have to be serializable as a python
-    # dictionary
+    # Convert the hash table to a dictionary for ease of use in the CLI and API
     def to_dict(self):
         res = {}
 
@@ -82,7 +80,7 @@ class HashTable:
             
         return res
 
-    # Print the has table, useful for replicating python's standard dictionary methods
+    # Print the hash table, useful for replicating python's standard dictionary methods
     def __str__(self):
         result = []
         for package in self.table:

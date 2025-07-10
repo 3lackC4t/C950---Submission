@@ -37,9 +37,7 @@ class Package:
             raw_time = datetime.strptime(deadline_str, "%I:%M %p").time()
             return datetime.combine(base_date, raw_time)
         
-    # The package objects will have to be serializable in order to pass them to the front end via
-    # restful API, so this method will do that for us by turning them into python
-    # dictionaries in order to 'jsonify'
+    # Converts the package object to a dictionary for ease of CLI display and API usage.
     def to_dict(self):
         return {
             "ID": self.package_id,

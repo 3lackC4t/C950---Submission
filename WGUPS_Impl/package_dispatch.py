@@ -43,8 +43,13 @@ class PackageDispatch:
                                         note=package[7],
                                         status=Status.AT_HUB)
             
-            new_package.package_log.append(f"[{new_package.package_id}] - [08:00:00] : loaded from data file, current status: {new_package.status.value}, current expected destination: {new_package.address}, current deadline: {new_package.deadline}")
-            
+            new_package.package_log.append(
+                f"[{new_package.package_id}] - [08:00:00] : loaded from data file, "
+                f"current status: {new_package.status.value}, "
+                f"current expected destination: {new_package.address}, "
+                f"current deadline: {new_package.deadline}"
+            )
+
             if "Delayed on flight" in new_package.note:
                 new_status = new_package.status.on_event("DELAY_PACKAGE")
                 if new_status:
@@ -107,20 +112,19 @@ class PackageDispatch:
                 )
                 if group_ready:
                     for package in self.special_package_group:
-                        group_names = [13, 14, 15, 19, 20]
+                        group_names = [13, 14, 15, 16, 19, 20]
                         group_names.remove(package.package_id)
                         package.package_log.append(
                             f"[{package.package_id}] - [{truck.current_time_readable()}] : Package [{package.package_id}] loaded along with [{group_names}]"
                         )
-                        new_status = package.status.on_event("LOAD_TRUCK")
-                        if new_status:
-                            package.status = new_status
-                        self.packages.remove(package)
                     packages_to_assign.extend(self.special_package_group)
                     self.special_package_group = None
 
             # Specific logic for handling the notes that each package may have
             for package in self.packages:
+                if package in packages_to_assign:
+                    continue
+
                 if "Can only be on truck 2" in package.note and truck.truckId != "truck-2":
                     continue 
 
@@ -164,7 +168,7 @@ class PackageDispatch:
     def get_the_group(self):
         res = []
         for package in self.packages:
-            if package.package_id in [13, 14, 15, 19, 20]:
+            if package.package_id in [13, 14, 15, 16, 19, 20]:
                 res.append(package)
 
         return res
