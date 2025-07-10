@@ -1,4 +1,4 @@
-from simulator_app.status import Status
+from status import Status
 from datetime import datetime
 
 """
@@ -57,6 +57,12 @@ class Package:
 
     # Provides overriding of the print() method for any given package object
     def __str__(self):
+
+        log = ""
+
+        for entry in self.package_log:
+            log += (entry + "\n")
+
         return f"""
             PACKAGE ID: [{self.package_id}]
             Delivery Address: {self.address}
@@ -66,7 +72,9 @@ class Package:
             Weight: {self.weight}
             Note: {self.note}
             Status: {self.status.value}
-        """
+            LOG:
+            {log}
+        """ 
 
     # Interface to print the packages logs 
     def print_log(self):

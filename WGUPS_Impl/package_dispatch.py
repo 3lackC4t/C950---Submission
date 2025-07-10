@@ -1,6 +1,6 @@
-from simulator_app.hash_table import HashTable
-from simulator_app.package import Package
-from simulator_app.status import Status
+from hash_table import HashTable
+from package import Package
+from status import Status
 
 import threading
 import csv
@@ -16,6 +16,7 @@ and delayed packages second.
 class PackageDispatch:
     def __init__(self, csv_file_path: pathlib.Path, location: str):
         self.packages = self.load_all_packages(csv_file_path)
+        self.special_package_group = self.get_the_group()
         self.package_interface = self.build_interface() 
         self.package_history = {}
         self.location = location
@@ -96,16 +97,32 @@ class PackageDispatch:
             return packages_to_load
 
         with self.package_lock:
-                        
             packages_to_assign = []
+
+            if self.special_package_group:
+                # Only load the group if ALL are available and in a loadable state
+                group_ready = all(
+                    pkg.status == Status.AT_HUB or pkg.status == Status.DELAYED
+                    for pkg in self.special_package_group
+                )
+                if group_ready:
+                    for package in self.special_package_group:
+                        group_names = [13, 14, 15, 19, 20]
+                        group_names.remove(package.package_id)
+                        package.package_log.append(
+                            f"[{package.package_id}] - [{truck.current_time_readable()}] : Package [{package.package_id}] loaded along with [{group_names}]"
+                        )
+                        new_status = package.status.on_event("LOAD_TRUCK")
+                        if new_status:
+                            package.status = new_status
+                        self.packages.remove(package)
+                    packages_to_assign.extend(self.special_package_group)
+                    self.special_package_group = None
 
             # Specific logic for handling the notes that each package may have
             for package in self.packages:
                 if "Can only be on truck 2" in package.note and truck.truckId != "truck-2":
-                    continue
-
-                if package.package_id in [13, 14, 15, 19, 20] and truck.truckId != "truck-1":
-                    continue
+                    continue 
 
                 if package.status == Status.DELAYED and truck.truckId != "truck-2":
                     continue
@@ -115,8 +132,9 @@ class PackageDispatch:
                         continue
                     else:
                         address = "Third District Juvenile Court 410 S State St"
+                        package.package_log.append(f"[{package.package_id}] - [{truck.current_time_readable()}] : Package [{package.package_id}] has had its address changed from [{package.address}] to [{address}]")
                         package.address = address
-
+                
                 if len(packages_to_assign) < capacity_needed:
                     package.truck_id = truck.truckId
                     packages_to_assign.append(package)
@@ -125,6 +143,7 @@ class PackageDispatch:
 
             for package in packages_to_assign:
                 try:
+                    old_status = package.status
                     new_status = package.status.on_event("LOAD_TRUCK")
                     if new_status:
                         package.status = new_status
@@ -132,7 +151,7 @@ class PackageDispatch:
                     self.packages.remove(package)
                     package.package_log.append(f"[{package.package_id}] - [{truck.current_time_readable()}] : Package [{package.package_id}] loaded onto truck [{truck.truckId}]")
                 except ValueError as e:
-                    print(f"Invalid State Change on package {package.package_id}")
+                    print(f"Invalid State Change on package {package.package_id}: [{old_status.value}] to [{new_status.value}]")
 
         return packages_to_load
     
@@ -142,3 +161,10 @@ class PackageDispatch:
             package.status = package.status.on_event("DELIVER")
             self.package_interface.insert_node(package)
 
+    def get_the_group(self):
+        res = []
+        for package in self.packages:
+            if package.package_id in [13, 14, 15, 19, 20]:
+                res.append(package)
+
+        return res

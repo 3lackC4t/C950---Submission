@@ -1,4 +1,4 @@
-from simulator_app.package import Package
+from package import Package
 
 class HashTable:
     def __init__(self, capacity):

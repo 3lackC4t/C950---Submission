@@ -1,5 +1,5 @@
-from simulator_app.package import Package
-from simulator_app.package_dispatch import PackageDispatch
+from package import Package
+from package_dispatch import PackageDispatch
 
 import datetime
 import csv
@@ -72,8 +72,6 @@ class Truck:
     # The truck will move itself to the hub, request as many packages as it has space for
     # And the dispatch will response with a list of package objects
     def load_packages(self):
-        # Essential "noop" print statement, without it packages will be delivered late.
-        print("")
         capacity_needed = self.max_inventory - len(self.packages)
 
         if self.current_location != self.dispatcher.location:
